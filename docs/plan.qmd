@@ -1,0 +1,9 @@
+
+```{python}
+from tlfyaml import PlanLoader
+```
+
+```{python}
+loader = PlanLoader('../examples/yaml/plan_xyz123.yaml')
+```
+
