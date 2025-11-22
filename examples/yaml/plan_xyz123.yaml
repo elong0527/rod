@@ -9,24 +9,26 @@ study:
 plans:
   # Demographics - Single combination
   - analysis: "demographics"
-    population: ["safety"]
-    parameter: ["demographics"]
-    # observation not needed for subject-level data
+    population: "adsl:itt"
+    group: "trt01a"
 
-  # AE Summary tables - Cartesian product approach
+  # AE Summary tables
   - analysis: "ae_summary"
-    population: ["apat", "safety"]
-    observation: ["wk12", "wk24"]
+    population: "adsl:apat"
+    observation: ["adae:week12", "adae:week24"]
+    group: "trt01a"
     parameter: "any;rel;ser"  # Semicolon-separated for single combination
 
   # AE Specific analysis - Multiple parameters as list
   - analysis: "ae_specific"
-    population: ["apat"]
-    observation: ["wk12", "wk24"]
-    parameter: ["any", "aeosi", "rel", "ser"]  # List for multiple combinations
+    population: "adsl:apat"
+    observation: ["adae:week12", "adae:week24"]
+    group: "trt01a"
+    parameter: ["any", "rel", "ser"]  # List for multiple combinations
 
-  # Listings
+  # AE Listings
   - analysis: "ae_listing"
-    population: ["safety"]
-    observation: ["wk12"]
-    parameter: ["ser"]  # Serious AE listing only
+    population: "adsl:apat"
+    observation: "adae:week12"
+    group: "trt01a"
+    parameter: ["any", "rel", "ser"]  
