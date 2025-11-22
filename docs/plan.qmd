@@ -1,9 +1,15 @@
 
 ```{python}
-from tlfyaml import PlanLoader
+from tlfyaml import load_plan
 ```
 
 ```{python}
-loader = PlanLoader('../examples/yaml/plan_xyz123.yaml')
+plan = load_plan('../examples/yaml/plan_xyz123.yaml')
+plan.print()
 ```
 
+```{python}
+import polars as pl 
+
+pl.DataFrame(plan.expand_all_plans())
+```
