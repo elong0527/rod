@@ -183,7 +183,7 @@ class StudyPlan:
             except Exception as e:
                 print(f"Warning: Could not load dataset '{name}' from '{data_source.path}'. Reason: {e}")
 
-    def expand_all_plans(self) -> pl.DataFrame:
+    def get_plan_df(self) -> pl.DataFrame:
         """Expand all condensed plans into a DataFrame of detailed specifications."""
         all_specs = [
             self.expander.create_analysis_spec(plan)
@@ -192,25 +192,7 @@ class StudyPlan:
         ]
         return pl.DataFrame(all_specs)
 
-    def get_summary(self) -> Dict[str, Any]:
-        """Get summary of study plan."""
-        expanded_df = self.expand_all_plans()
-        return {
-            'study': self.study_data.get('study', {}),
-            'templates': self.study_data.get('study', {}).get('template', []),
-            'keyword_counts': {
-                'populations': len(self.keywords.populations),
-                'observations': len(self.keywords.observations),
-                'parameters': len(self.keywords.parameters),
-                'groups': len(self.keywords.groups),
-                'data_sources': len(self.keywords.data_sources)
-            },
-            'condensed_plans': len(self.study_data.get('plans', [])),
-            'individual_analyses': len(expanded_df),
-            'analyses': expanded_df.to_dicts()
-        }
-
-    def get_data_sources_df(self) -> Optional[pl.DataFrame]:
+    def get_dataset_df(self) -> Optional[pl.DataFrame]:
         """Get a DataFrame of data sources."""
         if not self.keywords.data_sources:
             return None
@@ -219,7 +201,7 @@ class StudyPlan:
             for name, ds in self.keywords.data_sources.items()
         ])
 
-    def get_populations_df(self) -> Optional[pl.DataFrame]:
+    def get_population_df(self) -> Optional[pl.DataFrame]:
         """Get a DataFrame of analysis populations."""
         if not self.keywords.populations:
             return None
@@ -228,7 +210,7 @@ class StudyPlan:
             for name, pop in self.keywords.populations.items()
         ])
 
-    def get_observations_df(self) -> Optional[pl.DataFrame]:
+    def get_observation_df(self) -> Optional[pl.DataFrame]:
         """Get a DataFrame of analysis observations."""
         if not self.keywords.observations:
             return None
@@ -237,7 +219,7 @@ class StudyPlan:
             for name, obs in self.keywords.observations.items()
         ])
 
-    def get_parameters_df(self) -> Optional[pl.DataFrame]:
+    def get_parameter_df(self) -> Optional[pl.DataFrame]:
         """Get a DataFrame of analysis parameters."""
         if not self.keywords.parameters:
             return None
@@ -246,23 +228,13 @@ class StudyPlan:
             for name, param in self.keywords.parameters.items()
         ])
 
-    def get_groups_df(self) -> Optional[pl.DataFrame]:
+    def get_group_df(self) -> Optional[pl.DataFrame]:
         """Get a DataFrame of analysis groups."""
         if not self.keywords.groups:
             return None
         return pl.DataFrame([
             {"name": name, "variable": group.variable, "levels": str(group.level), "labels": str(group.group_label)}
             for name, group in self.keywords.groups.items()
-        ])
-
-    def get_analysis_functions_df(self) -> Optional[pl.DataFrame]:
-        """Get a DataFrame of unique analysis functions."""
-        unique_analyses = {p['analysis'] for p in self.study_data.get('plans', [])}
-        if not unique_analyses:
-            return None
-        return pl.DataFrame([
-            {"name": name, "label": f"Table: {name.replace('_', ' ')}"}
-            for name in sorted(unique_analyses)
         ])
 
     def print(self) -> None:

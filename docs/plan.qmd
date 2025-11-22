@@ -1,15 +1,42 @@
 
 ```{python}
+import polars as pl
 from tlfyaml import load_plan
+
+pl.Config.set_tbl_rows(-1)
 ```
 
 ```{python}
-plan = load_plan('../examples/yaml/plan_xyz123.yaml')
-plan.print()
+# load YAML file after leverage organization.yaml
+tlf = load_plan('../examples/yaml/plan_xyz123.yaml')
 ```
 
+# TLF plan 
 ```{python}
-import polars as pl 
+tlf.get_plan_df()
+```
 
-pl.DataFrame(plan.expand_all_plans())
+# TLF keywords 
+
+## Population 
+
+```{python}
+tlf.get_population_df()
+```
+
+## Observation 
+
+```{python}
+tlf.get_observation_df()
+```
+
+## Parameter 
+
+```{python}
+tlf.get_parameter_df()
+```
+
+## Group
+```{python}
+tlf.get_group_df()
 ```
