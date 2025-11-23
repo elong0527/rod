@@ -146,7 +146,7 @@ class PlanExpander:
 
     def _parse_parameters(self, value: Any) -> Optional[List[str]]:
         if value is None: return None
-        if isinstance(value, str): return [p.strip() for p in value.split(';')]
+        if isinstance(value, str): return [value]  # Keep semicolon-separated values as single parameter
         return list(value)
 
     def _generate_title(self, plan: AnalysisPlan) -> str:

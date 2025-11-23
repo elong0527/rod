@@ -26,7 +26,7 @@ will be essential to deliver A&R results that is reproducible and compliant.
 ::: callout-tip
 ## Objective
 
-Implement a hierarchical YAML-based Review-Oriented Development (ROD) framework within the Biometrics team powered by LLMs. ([Learn more](plan.qmd))
+Implement a hierarchical YAML-based Review-Oriented Development (ROD) framework within the Biometrics team powered by LLMs. ([Learn more](plan.html))
 :::
 
 ::: {layout-ncol="2"}

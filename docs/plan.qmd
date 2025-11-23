@@ -2,169 +2,83 @@
 title: "Planning"
 ---
 
-## Complete Plan File
-
-Here's the structure of a complete TLF YAML plan file:
-
 ```{python}
-#| echo: true
-#| eval: false
-
-# Read and display the example plan
-with open('../examples/yaml/plan_xyz123.yaml', 'r') as f:
-    plan_content = f.read()
-
-print(plan_content)
-```
-
-## Plan Components
-
-### 1. Study Metadata
-
-```yaml
-study:
-  name: "XYZ123"
-  title: "Phase III Study of Drug X vs Placebo"
-  template:
-    - organization.yaml
-```
-
-- `name`: Unique study identifier
-- `title`: Descriptive study title
-- `template`: List of template files to inherit from
-
-### 2. Analysis Plans
-
-```yaml
-plans:
-  # Demographics
-  - analysis: "demographics"
-    population: "itt"
-    group: "trt01a"
-
-  # AE Summary with Cartesian product
-  - analysis: "ae_summary"
-    population: "apat"
-    observation: ["week12", "week24"]
-    group: "trt01a"
-    parameter: "any;rel;ser"
-```
-
-#### Plan Fields
-
-- `analysis`: Analysis type identifier
-- `population`: Population keyword(s)
-- `observation`: Time point keyword(s) - optional
-- `group`: Grouping variable - optional
-- `parameter`: Analysis parameter(s) - optional
-
-#### Parameter Formats
-
-- **Semicolon format**: `"any;rel;ser"` - Single combination
-- **List format**: `["any", "rel", "ser"]` - Cartesian product
-
-### 3. Keyword Definitions
-
-#### Populations
-
-```yaml
-population:
-  - name: apat
-    label: "All Participants as Treated"
-    filter: "adsl:saffl == 'Y'"
-  - name: itt
-    label: "Intention-to-Treat"
-    filter: "adsl:ittfl == 'Y'"
-```
-
-#### Observations
-
-```yaml
-observation:
-  - name: week12
-    label: "Week 12"
-    description: "12-week post-baseline assessment"
-    filter: "adae:avisit == 'Week 12'"
-```
-
-#### Parameters
-
-```yaml
-parameter:
-  - name: any
-    label: "Any Adverse Event"
-    filter: "adae:trtemfl == 'Y'"
-  - name: rel
-    label: "Related Adverse Events"
-    filter: "adae:trtemfl == 'Y' and adae:aerel in ['RELATED', 'PROBABLY RELATED']"
-```
-
-## Loading and Examining Plans
-
-```{python}
-#| echo: true
-
-import sys
-sys.path.append('../src')
-
+import polars as pl 
 from tlfyaml import load_plan
 
-# Load the example plan
-study_plan = load_plan('../examples/yaml/plan_xyz123.yaml')
-
-# Print metalite-style summary
-study_plan.print()
+pl.Config.set_tbl_rows(-1)
 ```
 
-## Plan Expansion Example
+::: callout-tip
+## Objective
+
+Create a minimal visible product (MVP) to enable the A&R plan. 
+:::
+
+
+We created two YAML files [link](https://github.com/elong0527/demo-tlf-yaml/tree/main/examples/yaml) for an MVP. We uses Python ([source code](https://github.com/elong0527/demo-tlf-yaml/tree/main/src/tlfyaml)), the same idea can be built in R. 
+
+- `organization.yaml`: organization YAML file.
+- `plan_xyz123.yaml`: study specific YAML file.
+
+The structure of the YAML files are discussed in the [inheritance](inheritance.html) section.
+
+## Loading Plan 
+
+We load the analysis plan that leverage information in pre-specified templates.
 
 ```{python}
-#| echo: true
-
-# Get expansion summary
-summary = study_plan.get_summary()
-
-print(f"Study: {summary['study']['name']}")
-print(f"Templates: {summary['templates']}")
-print(f"Condensed plans: {summary['condensed_plans']}")
-print(f"Individual analyses: {summary['individual_analyses']}")
-
-print("\nFirst 5 analyses:")
-for i, analysis in enumerate(summary['analyses'][:5], 1):
-    print(f"{i:2d}. {analysis['id']}")
-    print(f"    Title: {analysis.get('title', 'N/A')}")
+study_plan = load_plan('../examples/yaml/plan_xyz123.yaml')
 ```
 
-## Best Practices
-
-### 1. Consistent Naming
-
-Use consistent naming conventions:
-- **Populations**: `itt`, `apat`, `pp`, `safety`
-- **Observations**: `baseline`, `week12`, `week24`, `eot`
-- **Parameters**: `any`, `rel`, `ser`, `grade3`
-
-### 2. Meaningful Labels
-
-Provide descriptive labels for all keywords:
-```yaml
-parameter:
-  - name: ser
-    label: "Serious Adverse Events"  # Clear, regulatory-compliant
+```{python}
+study_plan.get_plan_df()
 ```
 
-### 3. SQL-Compatible Filters
+For each row, developer can read it as a function call to generate production ready TLF. e.g. 
 
-Use SQL-like syntax for platform compatibility:
-```yaml
-filter: "adsl:saffl == 'Y' and adsl:ittfl == 'Y'"
+`ae_summary(population = "itt", observation = "week12", parameter = "any;rel;ser")`
+
+### Source Data 
+
+```{python}
+study_plan.get_dataset_df()
 ```
 
-### 4. Template Organization
+```{python}
+study_plan.datasets["adsl"].head()
+```
 
-Structure templates hierarchically:
-- `organization.yaml` - Organization-wide standards
-- `ta_oncology.yaml` - Therapeutic area specific
-- `study_abc123.yaml` - Study specific
+```{python}
+study_plan.datasets["adae"].head()
+```
 
-This organization enables maximum reusability while maintaining flexibility for study-specific requirements.
+## Population 
+
+```{python}
+study_plan.get_population_df()
+```
+
+## Observation 
+
+```{python}
+study_plan.get_observation_df()
+```
+
+## Parameter 
+
+```{python}
+study_plan.get_parameter_df()
+```
+
+## Group 
+
+```{python}
+study_plan.get_group_df()
+```
+
+# Human-in-loop 
+
+
+
+# AI 
