@@ -240,34 +240,36 @@ class StudyPlan:
     def print(self) -> None:
         """Print comprehensive study plan information using Polars DataFrames."""
         print("ADaM Metadata:")
-        
-        if (df := self.get_data_sources_df()) is not None:
+
+        if (df := self.get_dataset_df()) is not None:
             print("\nData Sources:")
             print(df)
 
-        if (df := self.get_populations_df()) is not None:
+        if (df := self.get_population_df()) is not None:
             print("\nAnalysis Population Type:")
             print(df)
 
-        if (df := self.get_observations_df()) is not None:
+        if (df := self.get_observation_df()) is not None:
             print("\nAnalysis Observation Type:")
             print(df)
-            
-        if (df := self.get_parameters_df()) is not None:
+
+        if (df := self.get_parameter_df()) is not None:
             print("\nAnalysis Parameter Type:")
             print(df)
-            
-        if (df := self.get_groups_df()) is not None:
+
+        if (df := self.get_group_df()) is not None:
             print("\nAnalysis Groups:")
             print(df)
 
-        if (df := self.get_analysis_functions_df()) is not None:
-            print("\nAnalysis Functions:")
+        if (df := self.get_plan_df()) is not None:
+            print("\nAnalysis Plans:")
             print(df)
 
     def __str__(self) -> str:
-        summary = self.get_summary()
-        return f"StudyPlan(study='{summary['study'].get('name', 'Unknown')}', plans={summary['condensed_plans']}, analyses={summary['individual_analyses']})"
+        study_name = self.study_data.get('study', {}).get('name', 'Unknown')
+        condensed_plans = len(self.study_data.get('plans', []))
+        individual_analyses = len(self.get_plan_df())
+        return f"StudyPlan(study='{study_name}', plans={condensed_plans}, analyses={individual_analyses})"
 
 def load_plan(plan_path: str) -> StudyPlan:
     """
