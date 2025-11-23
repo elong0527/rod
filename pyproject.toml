@@ -26,6 +26,7 @@ dependencies = [
     "pyyaml>=6.0",
     "polars>=0.20.0",
     "pytest>=9.0.1",
+    "jupyter>=1.1.1",
 ]
 
 [project.optional-dependencies]
