@@ -1,0 +1,36 @@
+```{python}
+#| message: false
+import sys
+from pathlib import Path
+
+# Add src to path for imports
+sys.path.insert(0, str(Path.cwd().parent / 'src'))
+```
+
+```{python}
+import polars as pl
+from tlfyaml import count_subject, count_subject_with_observation
+```
+
+```{python}
+adsl = pl.read_parquet("../data/adsl.parquet")
+adae = pl.read_parquet("../data/adae.parquet")
+```
+
+```{python}
+count_subject(
+    population = adsl, 
+    id = "USUBJID", 
+    group = "TRT01A",
+)
+```
+
+```{python}
+count_subject_with_observation(
+    population = adsl, 
+    observation = adae,
+    id = "USUBJID", 
+    group = "TRT01A",
+    variable = "AESOC"
+)
+```

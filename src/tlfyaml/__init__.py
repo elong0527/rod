@@ -11,6 +11,11 @@ from .ae_analysis import (
     ae_summary_to_rtf,
 )
 
+from .count import (
+    count_subject,
+    count_subject_with_observation,
+)
+
 # Main exports for common usage
 __all__ = [
     # Primary user interface
@@ -20,4 +25,7 @@ __all__ = [
     "ae_specific",
     "ae_listing",
     "ae_summary_to_rtf",
+    # Count functions
+    "count_subject",
+    "count_subject_with_observation",
 ]
