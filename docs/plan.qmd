@@ -5,7 +5,14 @@ execute:
 ---
 
 ```{python}
-import polars as pl 
+#| include: false
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(os.getcwd()), 'src'))
+```
+
+```{python}
+import polars as pl
 from tlfyaml import load_plan
 
 pl.Config.set_tbl_rows(-1)

@@ -1,29 +1,24 @@
 project:
-  type: website
+  type: book
   output-dir: _site
 
-website:
-  title: "ROD"
+book:
+  title: "Review Oriented Development (ROD)"
+  author:
+    - Yilong Zhang
   description: "A Review Oriented Development Framework using YAML and AI for Clinical Analysis and Reporting"
+  output-file: "rod"
+
   site-url: https://elong0527.github.io/demo-tlf-yaml
   repo-url: https://github.com/elong0527/demo-tlf-yaml
+  repo-actions: [edit, issue, source]
+  sharing: [twitter, linkedin]
+  reader-mode: true
 
-  navbar:
-    background: primary
-    left:
-      - href: index.qmd
-        text: Home
-
-    right:
-      - icon: github
-        href: https://github.com/elong0527/demo-tlf-yaml
-
-  sidebar:
-    style: docked
-    search: true
-    contents:
-        - inheritance.qmd
-        - plan.qmd
+  chapters:
+    - index.qmd
+    - inheritance.qmd
+    - plan.qmd
 
 format:
   html:

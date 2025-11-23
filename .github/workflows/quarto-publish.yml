@@ -47,10 +47,9 @@ jobs:
         run: |
           uv run --group dev python -m ipykernel install --user --name python3
 
-      - name: Render Quarto website
+      - name: Render Quarto book
         run: |
-          cd docs
-          uv run --group dev quarto render
+          uv run --group dev quarto render docs/
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
