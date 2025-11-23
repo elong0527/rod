@@ -2,6 +2,12 @@
 title: "Inheritance"
 ---
 
+::: callout-tip
+## Objective
+
+Building inheritance enables a single source of truth that reduces review burden.
+:::
+
 # Overview
 
 To ensure consistency in clinical study reporting deliverables, a biometrics organization has established standards, business rules, and templates.
