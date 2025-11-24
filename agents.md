@@ -146,3 +146,4 @@ When working with this codebase:
 6. Follow the metalite R package patterns for consistency
 7. Ensure any new keywords support field-level inheritance
 8. Test with both semicolon-separated and list parameter formats
+9. Prefer modern Python typing (e.g., `list[str]` instead of `typing.List[str]`) for all new and modified code.
