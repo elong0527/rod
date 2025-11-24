@@ -19,7 +19,10 @@ book:
     - index.qmd
     - inheritance.qmd
     - plan.qmd
-    - ae-analysis.qmd
+    - part: "Appendix"
+      chapters:
+        - count.qmd
+
 
 format:
   html:

@@ -1,3 +1,9 @@
+---
+title: "Count"
+execute:
+  echo: true
+---
+
 ```{python}
 #| message: false
 import sys
@@ -6,6 +12,13 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path.cwd().parent / 'src'))
 ```
+
+::: callout-tip
+## Objective
+
+Add examples to illustrate helper functions to count subject / records"
+:::
+
 
 ```{python}
 import polars as pl
@@ -17,20 +30,42 @@ adsl = pl.read_parquet("../data/adsl.parquet")
 adae = pl.read_parquet("../data/adae.parquet")
 ```
 
+# Population 
+
 ```{python}
-count_subject(
+df = count_subject(
     population = adsl, 
     id = "USUBJID", 
     group = "TRT01A",
 )
+df
 ```
 
 ```{python}
-count_subject_with_observation(
+(
+    df.
+    with_columns(pl.lit("Subjects in Population").alias("label")).
+    pivot(index = "label", on = "TRT01A", values = "n_subj_pop")
+)
+```
+
+# Observation 
+
+```{python}
+df = count_subject_with_observation(
     population = adsl, 
     observation = adae,
     id = "USUBJID", 
     group = "TRT01A",
     variable = "AESOC"
+)
+df
+```
+
+```{python}
+(
+    df
+    .pivot(index = "AESOC", on = "TRT01A", values = "n_pct_subj_fmt")
+    .sort("AESOC")
 )
 ```
