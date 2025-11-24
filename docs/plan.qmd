@@ -1,7 +1,5 @@
 ---
 title: "Planning"
-execute:
-  echo: true
 ---
 
 ```{python}
@@ -12,6 +10,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.getcwd()), 'src'))
 ```
 
 ```{python}
+#| message: false
 import polars as pl
 from tlfyaml import load_plan
 

@@ -1,11 +1,9 @@
 ---
 title: "Count"
-execute:
-  echo: true
 ---
 
 ```{python}
-#| message: false
+#| include: false
 import sys
 from pathlib import Path
 
