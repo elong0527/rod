@@ -2990,6 +2990,7 @@ dependencies = [
     { name = "polars" },
     { name = "pydantic" },
     { name = "pyyaml" },
+    { name = "rtflite" },
 ]
 
 [package.optional-dependencies]
@@ -3042,6 +3043,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.1" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
     { name = "pyyaml", specifier = ">=6.0" },
+    { name = "rtflite", specifier = ">=1.1.1" },
     { name = "rtflite", marker = "extra == 'all'" },
     { name = "rtflite", marker = "extra == 'rtf'" },
 ]
