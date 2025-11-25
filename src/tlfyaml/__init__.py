@@ -6,7 +6,7 @@ from .plan import (
 from .ae_analysis import (
     # AE analysis functions
     ae_summary,
-    ae_summary_core,
+    ae_summary_ard,
     ae_summary_to_rtf,
 )
 
@@ -26,7 +26,7 @@ __all__ = [
     "load_plan",
     # AE analysis
     "ae_summary",
-    "ae_summary_core",
+    "ae_summary_ard",
     "ae_summary_to_rtf",
     # Count functions
     "count_subject",

@@ -19,7 +19,7 @@ from .count import count_subject, count_subject_with_observation
 from .parse import StudyPlanParser
 
 
-def ae_summary_core(
+def ae_summary_ard(
     population: pl.DataFrame,
     observation: pl.DataFrame,
     population_filter: str | None,
@@ -31,7 +31,7 @@ def ae_summary_core(
     missing_group: str,
 ) -> dict[str, Any]:
     """
-    Core AE summary function - decoupled from StudyPlan.
+    Core AE summary function for generating Analysis Results Data (ARD) - decoupled from StudyPlan.
 
     Generates summary statistics showing the number and percentage
     of subjects experiencing adverse events, organized hierarchically by
@@ -146,10 +146,10 @@ def ae_summary(
     group: str = "trt01a",
 ) -> dict[str, Any]:
     """
-    Wrapper function for ae_summary_core with StudyPlan integration.
+    Wrapper function for ae_summary_ard with StudyPlan integration.
 
-    This function extracts configuration from StudyPlan and calls ae_summary_core.
-    Use ae_summary_core() directly if you don't have a StudyPlan object.
+    This function extracts configuration from StudyPlan and calls ae_summary_ard.
+    Use ae_summary_ard() directly if you don't have a StudyPlan object.
 
     Args:
         study_plan: StudyPlan object with loaded datasets and keywords
@@ -185,8 +185,8 @@ def ae_summary(
     group_var_label = group_labels[0] if group_labels else group_var_name
     group_tuple = (group_var_name, group_var_label)
 
-    # Call core function
-    result_df = ae_summary_core(
+    # Call ARD function
+    result_df = ae_summary_ard(
         population=population_df,
         observation=observation_df,
         population_filter=population_filter,

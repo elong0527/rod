@@ -18,9 +18,6 @@ def _to_pop(
     if missing_group == "error" and pop[group].is_null().any():
         raise ValueError(f"Missing values found in the '{group}' column of the population DataFrame, and 'missing_group' is set to 'error'.")
 
-    # prepare analysis ready data
-    df_pop = pop.group_by(group).agg(pl.len().alias("n_subj_pop")).sort(group)
-
     # handle total column
     if total:
         u_pop = pop[group].unique().sort().to_list()

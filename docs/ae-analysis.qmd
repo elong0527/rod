@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path.cwd().parent / 'src'))
 ```
 
 ```{python}
-from tlfyaml import load_plan, ae_summary_core,ae_summary, ae_summary_to_rtf
+from tlfyaml import load_plan, ae_summary_ard, ae_summary, ae_summary_to_rtf
 ```
 
 ## Load Study Plan
@@ -45,14 +45,14 @@ adae = study_plan.datasets["adae"]
 ### Prepare analysis ready data 
 
 ```{python}
-ae_summary_core(
+ae_summary_ard(
     population=adsl,
     observation=adae,
     population_filter="SAFFL = 'Y'",
     observation_filter=None,
     group=("TRT01A", "Treatment Group"),
     variables=[
-        ("TRTEMFL = 'Y'", "Any Adverse Events"), 
+        ("TRTEMFL = 'Y'", "Any Adverse Events"),
         ("AESER = 'Y'", "Serious Adverse Events")
     ],
     id=("USUBJID", "Subject ID"),
