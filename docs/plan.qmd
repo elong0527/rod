@@ -6,7 +6,7 @@ title: "Planning"
 #| include: false
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(os.getcwd()), 'src'))
+sys.path.insert(0, 'src')
 ```
 
 ```{python}
@@ -36,7 +36,7 @@ The structure of the YAML files are discussed in the [inheritance](inheritance.h
 We load the analysis plan that leverage information in pre-specified templates.
 
 ```{python}
-study_plan = load_plan('../examples/yaml/plan_xyz123.yaml')
+study_plan = load_plan("examples/yaml/plan_xyz123.yaml')
 ```
 
 ```{python}
