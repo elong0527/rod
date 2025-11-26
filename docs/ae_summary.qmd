@@ -5,7 +5,10 @@ title: "Adverse Event Analysis"
 ::: {.callout-note}
 ## Objectives
 
-Generate adverse event analysis outputs following ROD:
+This guide demonstrates:
+- StudyPlan-driven batch generation for production use
+- Three-step pipeline architecture for flexibility and extensibility
+- Standardized ARD structure for consistent data handling
 :::
 
 ## Setup
@@ -28,9 +31,13 @@ from tlfyaml import load_plan, study_plan_to_ae_summary
 from tlfyaml.ae_summary import ae_summary_ard, ae_summary_df, ae_summary_rtf, ae_summary
 ```
 
-## AE Summary with analysis plan 
+## StudyPlan-Driven Workflow
 
-The study plan is defined in YAML format with template inheritance. It contains population definitions, observation periods, parameters, and data source specifications.
+For production environments, define all analyses in a YAML file following the Review-Oriented Development (ROD) philosophy.
+
+### Load Study Plan
+
+The study plan contains population definitions, observation periods, parameters, and data source specifications:
 
 ```{python}
 # Load study plan from YAML
@@ -38,27 +45,82 @@ study_plan = load_plan("examples/yaml/plan_xyz123.yaml")
 study_plan.get_plan_df().filter(pl.col("analysis") == "ae_summary")
 ```
 
-In production, we expect one call to get all AE summary analysis defined in the study plan.
+### Batch Generate All Outputs
+
+The `study_plan_to_ae_summary` function automatically generates RTF outputs for all AE summary analyses defined in the plan:
 
 ```{python}
 study_plan_to_ae_summary(study_plan)
 ```
 
+**How it works:**
+1. Reads the expanded plan DataFrame
+2. Filters for `analysis == "ae_summary"`
+3. For each row, extracts population/observation/parameter/group keywords
+4. Uses `StudyPlanParser` to convert keywords to DataFrames and filters
+5. Calls `ae_summary()` to generate each RTF file
+6. Returns list of generated file paths
 
-# Overview 
+**When to use:**
+- Production environments with multiple analyses
+- YAML-first workflow (specifications drive code)
+- Need reproducibility and traceability
 
-We look into the design. Overall the `ae_summary` break into three steps 
 
-`*_ard`: create an analysis ready data in long format. 
-`*_df`: create a data frame following exact format of the TLF.
-`*_tlf`: format TLF and save into a file. 
+# Design Philosophy
 
-# AE Summary 
+## Three-Step Pipeline Architecture
 
-Here `ae_summary` is a wrapper of the `ae_summary_ard`, `ae_summary_df` and `ae_summary_tlf` function. 
+The AE summary analysis follows a three-step pipeline that separates concerns:
+
+1. **`ae_summary_ard`**: Generate Analysis Results Data (ARD)
+   - Input: Raw datasets with filters
+   - Output: Standardized long-format DataFrame with columns: `__index__`, `__group__`, `__value__`
+   - Purpose: Data processing and statistical computation
+
+2. **`ae_summary_df`**: Transform to display format
+   - Input: ARD (long format)
+   - Output: Wide-format DataFrame (groups as columns)
+   - Purpose: Reshape data for table layout
+
+3. **`ae_summary_rtf`**: Generate formatted output
+   - Input: Display DataFrame
+   - Output: RTFDocument object
+   - Purpose: Apply formatting and styling
+
+## Why This Separation?
+
+- **Testability**: Each step can be tested independently
+- **Reusability**: ARD can be transformed to different output formats (CSV, Excel, HTML)
+- **Extensibility**: Easy to add new output formats without touching analysis logic
+- **Debugging**: Inspect intermediate data at each stage
+
+## ARD Data Structure
+
+All `*_ard` functions return a standardized long-format DataFrame:
+
+- `__index__`: Row labels (e.g., "Any Adverse Events", "Serious Adverse Events")
+- `__group__`: Treatment groups (e.g., "Placebo", "Treatment A")
+- `__value__`: Formatted values (e.g., "12 (34.5%)")
+
+This structure enables consistent data handling across different analyses.
+
+## Function Wrapper
+
+The `ae_summary` function wraps all three steps for convenience:
+
+```
+ae_summary = ae_summary_ard -> ae_summary_df -> ae_summary_rtf -> write to file
+```
 
 ::: {.callout-note}
-We keep it simple and focus on the concept, one can refactor it into a class and add additional validation to make it production ready.
+## Extension Points
+
+To extend functionality:
+- Add new statistics: Modify `ae_summary_ard`
+- Change table layout: Modify `ae_summary_df`
+- Add new output formats: Create new `ae_summary_*` function using ARD
+- Batch processing: Use `study_plan_to_ae_summary` pattern
 :::
 
 ## Complete Pipeline
@@ -94,7 +156,17 @@ ae_summary(
 
 ## Step-by-Step Pipeline
 
-### Prepare analysis ready data 
+This section demonstrates each step of the pipeline individually, allowing you to inspect intermediate outputs and understand the data transformation at each stage.
+
+### Step 1: Generate Analysis Results Data (ARD)
+
+The `ae_summary_ard` function processes raw data and generates standardized long-format output:
+
+**Key Parameters:**
+- `population_filter`: SQL WHERE clause to subset subjects (e.g., `"SAFFL = 'Y'"` for safety population)
+- `observation_filter`: SQL WHERE clause to subset observations (can be `None`)
+- `group`: Tuple of `(variable_name, label)` for treatment grouping
+- `variables`: List of tuples `[(filter, label)]` defining which events to count
 
 ```{python}
 _ard = ae_summary_ard(
@@ -115,20 +187,26 @@ _ard = ae_summary_ard(
 _ard
 ```
 
-### Prepare TLF ready data 
+**Output Structure:** Long format with `__index__`, `__group__`, `__value__` columns.
+
+### Step 2: Transform to Display Format
+
+The `ae_summary_df` function pivots the ARD to wide format where groups become columns:
 
 ```{python}
-_rtf = ae_summary_df(_ard)
-_rtf
+_df = ae_summary_df(_ard)
+_df
 ```
 
-### Prepare RTF output
+**Output Structure:** Wide format with `__index__` as row labels and treatment groups as columns.
 
-Using the `ae_summary_rtf()` function for streamlined RTF generation:
+### Step 3: Generate RTF Output
+
+The `ae_summary_rtf` function creates a formatted RTF document:
 
 ```{python}
 ae_summary_rtf(
-    _rtf,
+    _df,
     title=[
         "Analysis of Adverse Event Summary",
         "(Safety Analysis Population)"
@@ -136,6 +214,45 @@ ae_summary_rtf(
     footnote=["Every participant is counted a single time for each applicable row and column."],
     source=["Source: ADSL and ADAE datasets"],
     col_rel_width=[4, 2, 2, 2, 2]  # Optional: defaults to auto-calculated widths
-).write_rtf("examples/rtf/ae_summary.rtf")
+).write_rtf("examples/rtf/ae_summary_step.rtf")
 ```
+
+**Output:** RTFDocument object that can be written to file using `.write_rtf()`.
+
+# Getting Started for Developers
+
+## Which Approach to Use?
+
+**Use StudyPlan-driven workflow (`study_plan_to_ae_summary`) when:**
+- Working in production with validated YAML specifications
+- Need to generate multiple analyses at once
+- Want YAML as single source of truth
+
+**Use manual workflow (`ae_summary`) when:**
+- Developing new analyses or debugging
+- Need one-off custom analyses
+- Want direct control over parameters
+
+**Use step-by-step workflow (individual functions) when:**
+- Adding new output formats (e.g., Excel, HTML)
+- Debugging data transformations
+- Building custom analysis pipelines
+
+## Common Enhancement Patterns
+
+**Add new statistics to ARD:**
+1. Modify `ae_summary_ard` to add new columns to the long-format output
+2. Ensure all values are formatted as strings in `__value__` column
+3. Add to `__index__` categories in the correct order
+
+**Create new output format (e.g., Excel):**
+1. Create new function `ae_summary_xlsx(df, ...)` that takes display DataFrame
+2. Apply Excel-specific formatting and styling
+3. ARD and display transformation remain unchanged
+
+**Batch process with custom logic:**
+1. Follow `study_plan_to_ae_summary` pattern
+2. Loop through plan rows
+3. Use `StudyPlanParser` to extract filters and parameters
+4. Call appropriate analysis functions
 

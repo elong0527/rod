@@ -69,7 +69,7 @@ parameter:
     label: "with one or more adverse events"
     filter: "adae:trtemfl == 'Y'"
   - name: rel
-    label: "with drug-related^a adverse events"
+    label: "with drug-related adverse events"
     filter: "adae:trtemfl == 'Y' and adae:aerel in ['PROBABLE', 'POSSIBLE']"
   - name: ser
     label: "with serious adverse events"
