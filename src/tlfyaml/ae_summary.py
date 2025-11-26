@@ -233,7 +233,7 @@ def ae_summary_ard(
         pl.DataFrame: Long-format ARD with columns __index__, __group__, __value__
     """
     # Extract group variable name (label is in tuple but not needed separately)
-    pop_var_name = "Participants in Population"
+    pop_var_name = "Participants in population"
     id_var_name, id_var_label = id
     group_var_name, group_var_label = group
 

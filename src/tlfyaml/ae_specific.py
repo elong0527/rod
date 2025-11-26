@@ -49,7 +49,7 @@ def ae_specific_ard(
         observation_filter: SQL WHERE clause for observation (can be None)
         id: Tuple (variable_name, label) for ID column
         group: Tuple (variable_name, label) for grouping variable
-        ae_term: Tuple (variable_name, label) for AE term column (default: ("AEDECOD", "Adverse Event"))
+        ae_term: Tuple (variable_name, label) for AE term column
         total: Whether to include total column in counts
         missing_group: How to handle missing group values: "error", "ignore", or "fill"
 
@@ -57,7 +57,9 @@ def ae_specific_ard(
         pl.DataFrame: Long-format ARD with columns __index__, __group__, __value__
     """
     # Extract variable names
-    pop_var_name = "Participants in Population"
+    pop_var_name = "Participants in population"
+    n_with_label = "    with one or more adverse events"
+    n_without_label = "    with no adverse events"
     id_var_name, id_var_label = id
     group_var_name, group_var_label = group
     ae_term_var_name, ae_term_var_label = ae_term
@@ -82,8 +84,8 @@ def ae_specific_ard(
 
     # Note: We'll extract categories from concatenated result later for both __index__ and __group__
 
-    # Population counts
-    n_pop = count_subject(
+    # Population counts - keep original for denominator calculations
+    n_pop_counts = count_subject(
         population=population_filtered,
         id=id_var_name,
         group=group_var_name,
@@ -91,7 +93,8 @@ def ae_specific_ard(
         missing_group=missing_group
     )
 
-    n_pop = n_pop.select(
+    # Transform population counts for display
+    n_pop = n_pop_counts.select(
         pl.lit(pop_var_name).alias("__index__"),
         pl.col(group_var_name).cast(pl.String).alias("__group__"),
         pl.col("n_subj_pop").cast(pl.String).alias("__value__")
@@ -102,6 +105,48 @@ def ae_specific_ard(
         pl.lit("").alias("__index__"),
         pl.col("__group__"),
         pl.lit("").alias("__value__")
+    )
+
+    # Summary rows: "with one or more" and "with no" adverse events
+    # Count subjects with at least one event
+    subjects_with_events = observation_filtered.select(id_var_name).unique()
+
+    # Get population with event indicator
+    pop_with_indicator = population_filtered.with_columns(
+        pl.col(id_var_name).is_in(subjects_with_events[id_var_name]).alias("__has_event__")
+    )
+
+    # Count subjects with and without events using count_subject_with_observation
+    event_counts = count_subject_with_observation(
+        population=population_filtered,
+        observation=pop_with_indicator,
+        id=id_var_name,
+        group=group_var_name,
+        variable="__has_event__",
+        total=total,
+        missing_group=missing_group
+    )
+
+    # Extract 'with' counts
+    n_with = (
+        event_counts
+        .filter(pl.col("__has_event__") == True)
+        .select([
+            pl.lit(n_with_label).alias("__index__"),
+            pl.col(group_var_name).cast(pl.String).alias("__group__"),
+            pl.col("n_pct_subj_fmt").alias("__value__")
+        ])
+    )
+
+    # Extract 'without' counts
+    n_without = (
+        event_counts
+        .filter(pl.col("__has_event__") == False)
+        .select([
+            pl.lit(n_without_label).alias("__index__"),
+            pl.col(group_var_name).cast(pl.String).alias("__group__"),
+            pl.col("n_pct_subj_fmt").alias("__value__")
+        ])
     )
 
     # AE term counts
@@ -116,13 +161,18 @@ def ae_specific_ard(
     )
 
     n_index = n_index.select(
-        pl.col("__index__"),
+        (
+            pl.col("__index__").cast(pl.String).str.slice(0, 1).str.to_uppercase() +
+            pl.col("__index__").cast(pl.String).str.slice(1).str.to_lowercase()
+        ).alias("__index__"),
         pl.col(group_var_name).cast(pl.String).alias("__group__"),
         pl.col("n_pct_subj_fmt").alias("__value__")
     )
 
     # Concatenate all parts
-    res = pl.concat([n_pop, n_empty, n_index])
+    parts = [n_pop, n_with, n_without, n_empty, n_index]
+
+    res = pl.concat(parts)
 
     # Extract unique categories from concatenated result in order of appearance
     index_categories = res.select("__index__").unique(maintain_order=True).to_series().to_list()
