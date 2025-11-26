@@ -47,9 +47,14 @@ jobs:
         run: |
           uv run --group dev python -m ipykernel install --user --name python3
 
+      - name: Install LibreOffice
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libreoffice
+
       - name: Render Quarto book
         run: |
-          uv run --group dev quarto render docs/
+          uv run --group dev quarto render
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
