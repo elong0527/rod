@@ -32,7 +32,7 @@ def ae_specific_ard(
     observation_filter: str | None,
     id: tuple[str, str],
     group: tuple[str, str],
-    ae_term: tuple[str, str] = ("AEDECOD", "Adverse Event"),
+    ae_term: tuple[str, str],
     total: bool = True,
     missing_group: str = "error",
 ) -> pl.DataFrame:
