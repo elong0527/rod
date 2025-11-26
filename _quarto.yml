@@ -25,6 +25,7 @@ book:
     - part: "Adverse Events"
       chapters: 
         - docs/ae_summary.qmd
+        - docs/ae_specific.qmd
     - part: "Appendix"
       chapters:
         - docs/count.qmd
