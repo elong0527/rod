@@ -50,8 +50,6 @@ for file in output_files:
     converter.convert(file, output_dir="docs/pdf/", format="pdf", overwrite=True)
 ```
 
-::: {.panel-tabset}
-
 ### week12_any
 
 <embed src="pdf/ae_specific_apat_week12_any.pdf" style="width:100%; height:600px" type="application/pdf">
@@ -76,9 +74,9 @@ for file in output_files:
 
 <embed src="pdf/ae_specific_apat_week24_ser.pdf" style="width:100%; height:600px" type="application/pdf">
 
-:::
 
 ## Complete Pipeline
+
 
 ```{python}
 adsl = pl.read_parquet("data/adsl.parquet")
@@ -112,6 +110,7 @@ converter.convert("examples/rtf/ae_specific.rtf", output_dir="docs/pdf/", format
 ```
 
 <embed src="pdf/ae_specific.pdf" style="width:100%; height:600px" type="application/pdf">
+
 
 ## Step-by-Step Pipeline
 
