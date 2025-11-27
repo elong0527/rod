@@ -71,6 +71,7 @@ def ae_listing_ard(
     population_columns: list[tuple[str, str]] | None = None,
     observation_columns: list[tuple[str, str]] | None = None,
     sort_columns: list[str] | None = None,
+    page_by: list[str] | None = None,
 ) -> pl.DataFrame:
     """
     Generate Analysis Results Data (ARD) for AE listing.
@@ -138,6 +139,45 @@ def ae_listing_ard(
 
         # Left join to preserve all observation records
         result = result.join(population_subset, on=id_var_name, how="left")
+
+    # Create __index__ column for pagination
+    # Default to using the id column as the index
+    if id_var_name in result.columns:
+        result = result.with_columns(
+            (pl.lit(f"{id_var_label} = ") + pl.col(id_var_name).cast(pl.Utf8)).alias("__index__")
+        )
+
+    # Use page_by columns if provided and they exist
+    existing_page_by_cols = [col for col in page_by if col in result.columns] if page_by else []
+
+    if existing_page_by_cols:
+        # Create a mapping from column name to label
+        column_labels = {id_var_name: id_var_label}
+        if population_columns:
+            for var_name, var_label in population_columns:
+                column_labels[var_name] = var_label
+        
+        # Ensure the order of labels matches the order of columns in page_by
+        index_expressions = []
+        for col_name in existing_page_by_cols:
+            label = column_labels.get(col_name, col_name)
+            index_expressions.append(
+                pl.lit(f"{label} = ") + pl.col(col_name).cast(pl.Utf8)
+            )
+        
+        result = result.with_columns(
+            pl.concat_str(index_expressions, separator=", ").alias("__index__")
+        )
+
+        page_by_remove = [col for col in page_by if col != id_var_name]
+        result = result.drop(page_by_remove)
+    
+    
+    if "__index__" in result.columns:
+        # Get all columns except __index__
+        other_columns = [col for col in result.columns if col != "__index__"]
+        # Reorder to have __index__ first
+        result = result.select(["__index__"] + other_columns)
 
     # Sort by specified columns or default to id column
     if sort_columns is None:
@@ -210,17 +250,19 @@ def ae_listing_rtf(
         "rtf_title": RTFTitle(text=title_list),
         "rtf_column_header": [
             RTFColumnHeader(
-                text=col_header,
-                col_rel_width=col_widths,
-                text_justification=["l"] * n_cols,
+                text=col_header[1:],
+                col_rel_width=col_widths[1:],
+                text_justification=["l"] +  ["c"] * (n_cols - 1),
             ),
         ],
         "rtf_body": RTFBody(
             col_rel_width=col_widths,
             text_justification=["l"] * n_cols,
-            border_left=["single"] * n_cols,
-            group_by=group_by,  # Section headers within pages
-            page_by=page_by,    # Trigger new pages when value changes
+            border_left=["single"],
+            border_top = ["single"] + [""] * (n_cols - 1),
+            border_bottom = ["single"] + [""] * (n_cols - 1),
+            group_by=group_by,  
+            page_by=page_by,   
         ),
     }
 
@@ -297,6 +339,7 @@ def ae_listing(
         population_columns=population_columns,
         observation_columns=observation_columns,
         sort_columns=sort_columns,
+        page_by=page_by,
     )
 
     # Build column labels from tuples
@@ -313,6 +356,9 @@ def ae_listing(
         for var_name, var_label in population_columns:
             column_labels[var_name] = var_label
 
+    # Set __index__ header to empty string
+    column_labels["__index__"] = ""
+
     # Step 2: Generate RTF and write to file
     rtf_doc = ae_listing_rtf(
         df=df,
@@ -322,7 +368,7 @@ def ae_listing(
         source=source,
         col_rel_width=col_rel_width,
         group_by=group_by,
-        page_by=page_by,
+        page_by=["__index__"] if page_by else None,
         orientation=orientation,
     )
     rtf_doc.write_rtf(output_file)
@@ -349,24 +395,23 @@ def study_plan_to_ae_listing(
     # Meta data
     analysis = "ae_listing"
     output_dir = "examples/rtf"
+    col_rel_width = [1, 1, 3, 1, 1, 1, 1, 1, 1, 2]
     footnote = None
     source = None
 
     id = ("USUBJID", "Subject ID")
-    id_var_name = id[0]  # Extract variable name for use in column lists
-
     # Column configuration with labels - easy to customize
     # Population columns (demographics) - group variable will be added dynamically
     population_columns_base = [
+        ("AGE", "Age"),
         ("SEX", "Sex"),
         ("RACE", "Race"),
-        ("AGE", "Age")
     ]
 
     # Observation columns (event details)
     observation_columns_base = [
-        ("ASTDY", "Study Day"),
         ("AEDECOD", "Adverse Event"),
+        ("ASTDY", "Study Day"),
         ("ADURN", "Duration (days)"),
         ("AESEV", "Severity"),
         ("AESER", "Serious"),
@@ -376,9 +421,9 @@ def study_plan_to_ae_listing(
     ]
 
     # Sorting configuration
-    sort_columns_base = ["ASTDY"]
+    sort_columns = ["TRT01A", "USUBJID","ASTDY"]
     page_by = ["USUBJID", "SEX", "RACE", "AGE", "TRT01A"]
-    group_by = ["TRT01A", "USUBJID"]
+    group_by = ["USUBJID"]
 
     # Create output directory if it doesn't exist
     Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -421,7 +466,7 @@ def study_plan_to_ae_listing(
         # Build columns dynamically from base configuration with labels
         population_columns = population_columns_base + [(group_var_name, group_var_label)]
         observation_columns = observation_columns_base
-        sort_columns = [group_var_name, id_var_name] + sort_columns_base
+        
 
         # Get parameter filter if parameter is specified
         parameter_filter = None
@@ -469,6 +514,7 @@ def study_plan_to_ae_listing(
             population_columns=population_columns,
             observation_columns=observation_columns,
             sort_columns=sort_columns,
+            col_rel_width = col_rel_width,
             group_by=group_by,
             page_by=page_by,
         )

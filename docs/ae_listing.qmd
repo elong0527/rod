@@ -52,17 +52,9 @@ for file in output_files:
     converter.convert(file, output_dir="docs/pdf/", format="pdf", overwrite=True)
 ```
 
-### week12_any
-
-<embed src="pdf/ae_listing_apat_week12_any.pdf" style="width:100%; height:600px" type="application/pdf">
-
 ### week12_ser
 
 <embed src="pdf/ae_listing_apat_week12_ser.pdf" style="width:100%; height:600px" type="application/pdf">
-
-### week24_any
-
-<embed src="pdf/ae_listing_apat_week24_any.pdf" style="width:100%; height:600px" type="application/pdf">
 
 ### week24_ser
 
@@ -88,10 +80,25 @@ ae_listing(
     footnote=["Adverse events are sorted by subject ID and study day."],
     source=["Source: ADSL and ADAE datasets"],
     output_file="examples/rtf/ae_listing.rtf",
-    population_columns=["SEX", "RACE", "AGE", "TRT01A"],
-    observation_columns=["ASTDY", "AEDECOD", "ADURN", "AESEV", "AESER", "AEREL", "AEACN", "AEOUT"],
+    population_columns=[
+        ("SEX", "Sex"),
+        ("RACE", "Race"),
+        ("AGE", "Age"),
+        ("TRT01A", "Treatment")
+    ],
+    observation_columns=[
+        ("ASTDY", "Study Day"),
+        ("AEDECOD", "Adverse Event"),
+        ("ADURN", "Duration (days)"),
+        ("AESEV", "Severity"),
+        ("AESER", "Serious"),
+        ("AEREL", "Related"),
+        ("AEACN", "Action Taken"),
+        ("AEOUT", "Outcome")
+    ],
     sort_columns=["TRT01A", "USUBJID", "ASTDY"],
-    group_by=["TRT01A", "USUBJID"],
+    group_by=["USUBJID"],
+    page_by=["TRT01A"],
 )
 ```
 
@@ -107,10 +114,11 @@ converter.convert("examples/rtf/ae_listing.rtf", output_dir="docs/pdf/", format=
 ### Step 1: Generate ARD
 
 **Key Parameters:**
-- `population_columns`: List of column names from population (ADSL) to include (e.g., ["SEX", "RACE", "AGE"]). These are joined to observation data. If None (default), no population columns are added.
-- `observation_columns`: List of column names from observation (ADAE) to include (e.g., ["AEDECOD", "AESEV"]). If None (default), only the id column is included.
+- `population_columns`: List of tuples `(column_name, label)` from population (ADSL) to include (e.g., `[("SEX", "Sex"), ("RACE", "Race")]`).
+- `observation_columns`: List of tuples `(column_name, label)` from observation (ADAE) to include (e.g., `[("AEDECOD", "Adverse Event")]`).
 - `sort_columns`: List of column names to sort by. If None (default), sorts by id column.
 - `parameter_filter`: Optional SQL WHERE clause for filtering AEs (e.g., "AESER = 'Y'" for serious AEs)
+- `page_by`: Optional list of columns to create an `__index__` column for pagination.
 
 **Example with default (ID only):**
 
@@ -122,16 +130,25 @@ _ard_minimal = ae_listing_ard(
     observation_filter="TRTEMFL = 'Y'",
     parameter_filter=None,
     id=("USUBJID", "Subject ID"),
-    population_columns=["SEX", "RACE", "AGE", "TRT01A"],
-    observation_columns=["ASTDY", "AEDECOD", "ADURN", "AESEV", "AESER", "AEREL", "AEACN", "AEOUT"],
 )
 
 _ard_minimal.head(5)
 ```
 
-**Example with explicit columns:**
+**Example with explicit columns and pagination:**
 
 ```{python}
+population_columns = [
+    ("SEX", "Sex"),
+    ("RACE", "Race"),
+    ("AGE", "Age"),
+    ("TRT01A", "Treatment")
+]
+observation_columns = [
+    ("AEDECOD", "Adverse Event"),
+    ("ASTDY", "Study Day"),
+]
+
 _ard = ae_listing_ard(
     population=adsl,
     observation=adae,
@@ -139,9 +156,10 @@ _ard = ae_listing_ard(
     observation_filter="TRTEMFL = 'Y'",
     parameter_filter=None,
     id=("USUBJID", "Subject ID"),
-    population_columns=["SEX", "RACE", "AGE", "TRT01A"],  # Demographics from ADSL
-    observation_columns=["ASTDY", "AEDECOD", "ADURN", "AESEV", "AESER", "AEREL", "AEACN", "AEOUT"],  # Event details from ADAE
-    sort_columns=["TRT01A", "USUBJID", "ASTDY"],  # Sort by treatment, subject, and study day
+    population_columns=population_columns,
+    observation_columns=observation_columns,
+    sort_columns=["TRT01A", "USUBJID", "ASTDY"],
+    page_by=["USUBJID", "AGE", "SEX", "RACE", "TRT01A"],
 )
 
 _ard.head(10)
@@ -154,20 +172,25 @@ _ard.head(10)
 The ARD from step 1 is already display-ready (filtered and sorted), so we can generate RTF directly.
 
 **Key Parameters:**
-- `group_by`: Optional list of column names to group by for section headers. Common patterns include grouping by treatment and subject ID to create demographic sections.
+- `column_labels`: A dictionary mapping column names to their display labels.
+- `group_by`: Optional list of column names to group by for section headers.
 
-**Example without grouping:**
+First, let's create the `column_labels` dictionary:
 
 ```{python}
+id_col = ("USUBJID", "Subject ID")
+column_labels = dict([id_col] + population_columns + observation_columns)
+
 ae_listing_rtf(
     _ard,
+    column_labels=column_labels,
     title=[
         "Adverse Event Listing",
         "(Treatment-Emergent, Safety Population)"
     ],
     footnote=["Adverse events are sorted by treatment, subject ID, and study day."],
     source=["Source: ADSL and ADAE datasets"],
-    group_by=None,  # No section headers
+    page_by="__index__",
 ).write_rtf("examples/rtf/ae_listing_step.rtf")
 ```
 
@@ -178,32 +201,9 @@ converter.convert("examples/rtf/ae_listing_step.rtf", output_dir="docs/pdf/", fo
 
 <embed src="pdf/ae_listing_step.pdf" style="width:100%; height:600px" type="application/pdf">
 
+## Customizing Columns, Grouping, and Pagination
 
-**Example with grouping:**
-
-```{python}
-ae_listing_rtf(
-    _ard,
-    title=[
-        "Adverse Event Listing",
-        "(Treatment-Emergent, Safety Population)"
-    ],
-    footnote=["Adverse events are sorted by treatment, subject ID, and study day."],
-    source=["Source: ADSL and ADAE datasets"],
-    group_by=["TRT01A", "USUBJID"],  # Section headers for each treatment/subject combination
-).write_rtf("examples/rtf/ae_listing_step_grouped.rtf")
-```
-
-```{python}
-#| echo: false
-converter.convert("examples/rtf/ae_listing_step_grouped.rtf", output_dir="docs/pdf/", format="pdf", overwrite=True)
-```
-
-<embed src="pdf/ae_listing_step_grouped.pdf" style="width:100%; height:600px" type="application/pdf">
-
-## Customizing Columns and Grouping
-
-You can customize which columns to display from both population and observation datasets:
+You can customize which columns to display, how to group sections, and how to paginate the output.
 
 ```{python}
 ae_listing(
@@ -220,10 +220,16 @@ ae_listing(
     footnote=["Listing includes only serious adverse events."],
     source=["Source: ADSL and ADAE datasets"],
     output_file="examples/rtf/ae_listing_custom.rtf",
-    population_columns=["SEX", "AGE"],  # Minimal demographics
-    observation_columns=["AEDECOD", "AESEV", "AESER", "AEREL", "AEOUT"],  # Key event details
-    sort_columns=["USUBJID"],  # Sort by subject ID only
+    population_columns=[("SEX", "Sex"), ("AGE", "Age"), ("TRT01A", "Treatment")],  # Minimal demographics
+    observation_columns=[
+        ("AEDECOD", "Adverse Event"),
+        ("AESEV", "Severity"),
+        ("AEREL", "Related"),
+        ("AEOUT", "Outcome")
+    ],  # Key event details
+    sort_columns=["TRT01A", "USUBJID"],  # Sort by treatment and subject
     group_by=["USUBJID"],  # Group by subject for section headers
+    page_by=["TRT01A", "USUBJID", "AGE", "SEX"],  # Create a new page for each treatment group
 )
 ```
 
