@@ -492,6 +492,9 @@ def study_plan_to_ae_specific(
     ]
     source = None
 
+    population_df_name = "adsl"
+    observation_df_name = "adae"
+
     id = ("USUBJID", "Subject ID")
     ae_term = ("AEDECOD", "Adverse Event")
     total = True
@@ -527,7 +530,7 @@ def study_plan_to_ae_specific(
             )
 
         # Get datasets using parser
-        population_df, observation_df = parser.get_datasets("adsl", "adae")
+        population_df, observation_df = parser.get_datasets(population_df_name, observation_df_name)
 
         # Get filters and configuration using parser
         population_filter = parser.get_population_filter(population)

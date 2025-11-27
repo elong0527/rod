@@ -45,6 +45,9 @@ def study_plan_to_ae_summary(
     footnote = ["Every participant is counted a single time for each applicable row and column."]
     source = None
 
+    population_df_name = "adsl"
+    observation_df_name = "adae"
+
     id = ("USUBJID", "Subject ID") 
     total = True
     missing_group = "error"
@@ -75,7 +78,7 @@ def study_plan_to_ae_summary(
             raise ValueError(f"Group not specified in YAML for analysis: population={population}, observation={observation}, parameter={parameter}. Please add group to your YAML plan.")
 
         # Get datasets using parser
-        population_df, observation_df = parser.get_datasets("adsl", "adae")
+        population_df, observation_df = parser.get_datasets(population_df_name, observation_df_name)
 
         # Get filters and configuration using parser
         population_filter = parser.get_population_filter(population)

@@ -398,6 +398,9 @@ def study_plan_to_ae_listing(
     footnote = None
     source = None
 
+    population_df_name = "adsl"
+    observation_df_name = "adae"
+    
     id = ("USUBJID", "Subject ID")
     # Column configuration with labels - easy to customize
     # Population columns (demographics) - group variable will be added dynamically
@@ -450,7 +453,7 @@ def study_plan_to_ae_listing(
             raise ValueError(f"Group not specified in YAML for analysis: population={population}, observation={observation}, parameter={parameter}. Please add group to your YAML plan.")
 
         # Get datasets using parser
-        population_df, observation_df = parser.get_datasets("adsl", "adae")
+        population_df, observation_df = parser.get_datasets(population_df_name, observation_df_name)
 
         # Get filters using parser
         population_filter = parser.get_population_filter(population)
