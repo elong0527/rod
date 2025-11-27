@@ -190,7 +190,7 @@ ae_listing_rtf(
     ],
     footnote=["Adverse events are sorted by treatment, subject ID, and study day."],
     source=["Source: ADSL and ADAE datasets"],
-    page_by="__index__",
+    page_by=["__index__"],
 ).write_rtf("examples/rtf/ae_listing_step.rtf")
 ```
 
