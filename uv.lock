@@ -2830,8 +2830,8 @@ wheels = [
 
 [[package]]
 name = "rtflite"
-version = "1.1.1"
-source = { git = "https://github.com/pharmaverse/rtflite.git?rev=main#d837221d7502d02a246fdda536e9b611e87e00b7" }
+version = "1.2.0"
+source = { git = "https://github.com/pharmaverse/rtflite.git?rev=main#63e8cd707d95d37cedcef5cc7ceef1016ab8857a" }
 dependencies = [
     { name = "narwhals" },
     { name = "pillow" },
