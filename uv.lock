@@ -2830,13 +2830,17 @@ wheels = [
 
 [[package]]
 name = "rtflite"
-version = "1.2.0"
-source = { git = "https://github.com/pharmaverse/rtflite.git?rev=main#63e8cd707d95d37cedcef5cc7ceef1016ab8857a" }
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "narwhals" },
     { name = "pillow" },
     { name = "polars" },
     { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/56/6e/40059f65617f3a39fd301923bd7e7197e5fa2bc901ca16fe4fd37751af96/rtflite-2.0.0.tar.gz", hash = "sha256:00a5818686477657763c194f142fa967c7f2b0caa0977758d15db3fe26380b59", size = 2032316, upload-time = "2025-12-01T01:29:16.617Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a7/06/2bf1a6eab4f1125d45bce9f4cd03b90ecbe8c3c1e7dd479b2cf2e96f9228/rtflite-2.0.0-py3-none-any.whl", hash = "sha256:0ce78d0c9eb1e5682ac0b54b9327cf8d11725ed2d52d514e68ae7b1c6c3b835a", size = 1152730, upload-time = "2025-12-01T01:29:14.61Z" },
 ]
 
 [[package]]
@@ -3039,7 +3043,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.1" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
     { name = "pyyaml", specifier = ">=6.0" },
-    { name = "rtflite", git = "https://github.com/pharmaverse/rtflite.git?rev=main" },
+    { name = "rtflite", specifier = ">=2.0.0" },
     { name = "rtflite", marker = "extra == 'all'" },
     { name = "rtflite", marker = "extra == 'rtf'" },
 ]

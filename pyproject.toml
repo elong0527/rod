@@ -25,7 +25,7 @@ dependencies = [
     "pydantic>=2.0.0",
     "pyyaml>=6.0",
     "polars>=0.20.0",
-    "rtflite @ git+https://github.com/pharmaverse/rtflite.git@main#egg=rtflite",
+    "rtflite>=2.0.0",
 ]
 
 [project.optional-dependencies]
