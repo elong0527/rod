@@ -7,7 +7,7 @@ from tlfyaml.utils import apply_common_filters
 
 
 class TestUtils(unittest.TestCase):
-    def test_apply_common_filters_no_filters(self):
+    def test_apply_common_filters_no_filters(self) -> None:
         pop = pl.DataFrame({"id": [1, 2, 3], "group": ["A", "B", "A"]})
         obs = pl.DataFrame({"id": [1, 2, 3], "val": [10, 20, 30]})
 
@@ -16,7 +16,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(res_pop.equals(pop))
         self.assertTrue(res_obs.equals(obs))
 
-    def test_apply_common_filters_population_filter(self):
+    def test_apply_common_filters_population_filter(self) -> None:
         pop = pl.DataFrame({"id": [1, 2, 3], "group": ["A", "B", "A"]})
         obs = pl.DataFrame({"id": [1, 2, 3], "val": [10, 20, 30]})
 
@@ -29,7 +29,7 @@ class TestUtils(unittest.TestCase):
             res_obs.equals(obs)
         )  # Observation not filtered by population filter directly in this function
 
-    def test_apply_common_filters_observation_filter(self):
+    def test_apply_common_filters_observation_filter(self) -> None:
         pop = pl.DataFrame({"id": [1, 2, 3]})
         obs = pl.DataFrame({"id": [1, 2, 3], "val": [10, 20, 30]})
 
@@ -39,7 +39,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(res_pop.equals(pop))
         self.assertTrue(res_obs.equals(expected_obs))
 
-    def test_apply_common_filters_parameter_filter(self):
+    def test_apply_common_filters_parameter_filter(self) -> None:
         pop = pl.DataFrame({"id": [1, 2, 3]})
         obs = pl.DataFrame({"id": [1, 2, 3], "param": ["X", "Y", "X"]})
 
@@ -49,7 +49,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(res_pop.equals(pop))
         self.assertTrue(res_obs.equals(expected_obs))
 
-    def test_apply_common_filters_all_filters(self):
+    def test_apply_common_filters_all_filters(self) -> None:
         pop = pl.DataFrame({"id": [1, 2, 3], "group": ["A", "B", "A"]})
         obs = pl.DataFrame({"id": [1, 2, 3], "val": [10, 20, 30], "param": ["X", "Y", "X"]})
 

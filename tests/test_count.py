@@ -7,7 +7,7 @@ from tlfyaml.count import count_subject, count_subject_with_observation
 
 
 class TestCountSubject(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.population_data = pl.DataFrame(
             {"USUBJID": ["01", "02", "03", "04", "05"], "TRT01A": ["A", "A", "B", "B", "B"]}
         )
@@ -18,7 +18,7 @@ class TestCountSubject(unittest.TestCase):
             }
         )
 
-    def test_count_subject(self):
+    def test_count_subject(self) -> None:
         result = count_subject(
             population=self.population_data, id="USUBJID", group="TRT01A", total=True
         )
@@ -28,7 +28,7 @@ class TestCountSubject(unittest.TestCase):
         self.assertEqual(result.filter(pl.col("TRT01A") == "B")["n_subj_pop"][0], 3)
         self.assertEqual(result.filter(pl.col("TRT01A") == "Total")["n_subj_pop"][0], 5)
 
-    def test_count_subject_no_total(self):
+    def test_count_subject_no_total(self) -> None:
         result = count_subject(
             population=self.population_data, id="USUBJID", group="TRT01A", total=False
         )
@@ -36,19 +36,19 @@ class TestCountSubject(unittest.TestCase):
         self.assertNotIn("Total", result["TRT01A"].to_list())
         self.assertEqual(result.height, 2)
 
-    def test_count_subject_missing_group_error(self):
+    def test_count_subject_missing_group_error(self) -> None:
         pop_missing = pl.DataFrame({"USUBJID": ["01", "02"], "TRT01A": ["A", None]})
 
         with self.assertRaisesRegex(ValueError, "Missing values found"):
             count_subject(pop_missing, "USUBJID", "TRT01A", missing_group="error")
 
-    def test_count_subject_duplicate_id_error(self):
+    def test_count_subject_duplicate_id_error(self) -> None:
         pop_dup = pl.DataFrame({"USUBJID": ["01", "01"], "TRT01A": ["A", "B"]})
 
         with self.assertRaisesRegex(ValueError, "not unique"):
             count_subject(pop_dup, "USUBJID", "TRT01A")
 
-    def test_count_subject_with_observation(self):
+    def test_count_subject_with_observation(self) -> None:
         result = count_subject_with_observation(
             population=self.population_data,
             observation=self.observation_data,
@@ -77,7 +77,7 @@ class TestCountSubject(unittest.TestCase):
         self.assertEqual(row_b_inf["n_subj"][0], 1)
         self.assertLess(abs(row_b_inf["pct_subj"][0] - 33.3), 0.1)
 
-    def test_count_subject_with_observation_missing_id_in_pop(self):
+    def test_count_subject_with_observation_missing_id_in_pop(self) -> None:
         obs_bad = pl.DataFrame(
             {
                 "USUBJID": ["99"],  # Not in pop

@@ -6,7 +6,7 @@ from tlfyaml.plan import KeywordRegistry, PlanExpander, StudyPlan
 
 
 class TestPlan(unittest.TestCase):
-    def test_keyword_registry_load(self):
+    def test_keyword_registry_load(self) -> None:
         registry = KeywordRegistry()
         data = {
             "population": [{"name": "pop1", "filter": "f1"}],
@@ -24,7 +24,7 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(registry.get_group("grp1").variable, "var1")
         self.assertEqual(registry.get_data_source("ds1").path, "p1")
 
-    def test_plan_expander_simple(self):
+    def test_plan_expander_simple(self) -> None:
         registry = KeywordRegistry()
         expander = PlanExpander(registry)
 
@@ -44,7 +44,7 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(plans[0].observation, "obs1")
         self.assertEqual(plans[0].parameter, "param1")
 
-    def test_plan_expander_multiple(self):
+    def test_plan_expander_multiple(self) -> None:
         registry = KeywordRegistry()
         expander = PlanExpander(registry)
 
@@ -65,7 +65,7 @@ class TestPlan(unittest.TestCase):
         self.assertIn("ae_summary_pop1_obs1_param1", ids)
         self.assertIn("ae_summary_pop2_obs1_param2", ids)
 
-    def test_study_plan_init(self):
+    def test_study_plan_init(self) -> None:
         study_data = {
             "study": {"name": "Test Study"},
             "data": [{"name": "adsl", "path": "adsl.parquet"}],
