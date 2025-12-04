@@ -12,13 +12,14 @@ This module provides a pipeline for Disposition Table 1.1 summary analysis:
 from pathlib import Path
 
 import polars as pl
-from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFSource, RTFTitle
+from rtflite import RTFDocument
 
 from ..ae.ae_utils import create_ae_rtf_table
-from ..common.count import count_subject, count_subject_with_observation
+from ..common.count import count_subject_with_observation
 from ..common.parse import StudyPlanParser
 from ..common.plan import StudyPlan
 from ..common.utils import apply_common_filters
+
 
 def study_plan_to_disposition_table_1_1(
     study_plan: StudyPlan,
@@ -33,7 +34,7 @@ def study_plan_to_disposition_table_1_1(
     source = None
 
     population_df_name = "adsl"
-    observation_df_name = "ds" # As per plan_ds_xyz123.yaml
+    observation_df_name = "ds"  # As per plan_ds_xyz123.yaml
 
     id = ("USUBJID", "Subject ID")
     total = True
@@ -58,7 +59,9 @@ def study_plan_to_disposition_table_1_1(
         observation = row.get("observation")
         parameter = row["parameter"]
         group = row.get("group")
-        title_text = row.get("title", "Disposition of Participants") # Allow title override from plan if we supported it in parser, else default
+        title_text = row.get(
+            "title", "Disposition of Participants"
+        )  # Allow title override from plan if we supported it in parser, else default
 
         # Get datasets
         population_df, observation_df = parser.get_datasets(population_df_name, observation_df_name)
@@ -66,16 +69,18 @@ def study_plan_to_disposition_table_1_1(
         # Get filters
         population_filter = parser.get_population_filter(population)
         obs_filter = parser.get_observation_filter(observation)
-        
+
         # Get parameters with indent levels
-        param_names, param_filters, param_labels, param_indents = parser.get_parameter_info(parameter)
-        
+        param_names, param_filters, param_labels, param_indents = parser.get_parameter_info(
+            parameter
+        )
+
         # Apply indentation to labels
         indented_labels = []
         for label, indent_level in zip(param_labels, param_indents):
             indent_str = "    " * indent_level  # 4 spaces per indent level
             indented_labels.append(f"{indent_str}{label}")
-        
+
         variables_list = list(zip(param_filters, indented_labels))
 
         # Get group info (optional)
@@ -116,6 +121,7 @@ def study_plan_to_disposition_table_1_1(
         rtf_files.append(rtf_path)
 
     return rtf_files
+
 
 def disposition_table_1_1(
     population: pl.DataFrame,
@@ -164,6 +170,7 @@ def disposition_table_1_1(
 
     return output_file
 
+
 def disposition_table_1_1_ard(
     population: pl.DataFrame,
     observation: pl.DataFrame,
@@ -179,7 +186,7 @@ def disposition_table_1_1_ard(
     Generate ARD for Disposition Table 1.1.
     """
     id_var_name, _ = id
-    
+
     # Handle optional group
     if group is not None:
         group_var_name, _ = group
@@ -195,25 +202,26 @@ def disposition_table_1_1_ard(
         population=population,
         observation=observation,
         population_filter=population_filter,
-        observation_filter=observation_filter
+        observation_filter=observation_filter,
     )
 
-    # For each parameter, we create an "observation" dataset and use count_subject_with_observation
-    # This approach works for both ADSL-based filters (e.g., "Enrolled") and DS-based filters (e.g., "Discontinued")
-    
+    # For each parameter, we create an "observation" dataset and use
+    # count_subject_with_observation. This approach works for both ADSL-based
+    # filters (e.g., "Enrolled") and DS-based filters (e.g., "Discontinued")
+
     results = []
-    
+
     for var_filter, var_label in variables:
         # Try to apply the filter to population first, then observation
         # This handles both ADSL-based and DS-based parameter filters
         try:
             target_obs = population_filtered.filter(pl.sql_expr(var_filter))
-        except:
+        except Exception:
             target_obs = observation_to_filter.filter(pl.sql_expr(var_filter))
-        
+
         # Add the parameter label as a variable for counting
         target_obs = target_obs.with_columns(pl.lit(var_label).alias("__index__"))
-        
+
         # Use count_subject_with_observation to get n (%) for each group
         counts = count_subject_with_observation(
             population=population_filtered,
@@ -222,42 +230,42 @@ def disposition_table_1_1_ard(
             group=group_var_name,
             variable="__index__",
             total=total,
-            missing_group=missing_group
+            missing_group=missing_group,
         )
-        
-        results.append(counts.select(
-            pl.col("__index__"),
-            pl.col(group_var_name).alias("__group__"),
-            pl.col("n_pct_subj_fmt").alias("__value__")
-        ))
+
+        results.append(
+            counts.select(
+                pl.col("__index__"),
+                pl.col(group_var_name).alias("__group__"),
+                pl.col("n_pct_subj_fmt").alias("__value__"),
+            )
+        )
 
     # Combine all results
     ard = pl.concat(results)
-    
+
     # Sort by the order of variables in the list
     # Create an Enum for __index__
     var_labels = [label for _, label in variables]
-    ard = ard.with_columns(
-        pl.col("__index__").cast(pl.Enum(var_labels))
-    ).sort("__index__", "__group__")
+    ard = ard.with_columns(pl.col("__index__").cast(pl.Enum(var_labels))).sort(
+        "__index__", "__group__"
+    )
 
     return ard
+
 
 def disposition_table_1_1_df(ard: pl.DataFrame) -> pl.DataFrame:
     """
     Transform ARD to display format.
     """
     # Pivot
-    df_wide = ard.pivot(
-        index="__index__",
-        on="__group__",
-        values="__value__"
-    )
-    
+    df_wide = ard.pivot(index="__index__", on="__group__", values="__value__")
+
     # Rename index
     df_wide = df_wide.rename({"__index__": "Disposition Status"})
-    
+
     return df_wide
+
 
 def disposition_table_1_1_rtf(
     df: pl.DataFrame,
@@ -271,11 +279,11 @@ def disposition_table_1_1_rtf(
     """
     # Reuse generic table creation
     # Columns: Disposition Status, Group 1, Group 2, ... Total
-    
+
     n_cols = len(df.columns)
     col_header_1 = list(df.columns)
     col_header_2 = [""] + ["n (%)"] * (n_cols - 1)
-    
+
     if col_rel_width is None:
         col_widths = [2.5] + [1] * (n_cols - 1)
     else:
@@ -288,5 +296,5 @@ def disposition_table_1_1_rtf(
         col_widths=col_widths,
         title=title,
         footnote=footnote,
-        source=source
+        source=source,
     )

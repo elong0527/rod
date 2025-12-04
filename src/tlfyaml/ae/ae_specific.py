@@ -19,7 +19,7 @@ and parse.py utilities for StudyPlan parsing.
 from pathlib import Path
 
 import polars as pl
-from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFSource, RTFTitle
+from rtflite import RTFDocument
 
 from ..common.count import count_subject, count_subject_with_observation
 from ..common.parse import StudyPlanParser
@@ -365,11 +365,8 @@ def study_plan_to_ae_specific(
 
     # Meta data
     analysis = "ae_specific"
-    analysis_label = "Participants with Adverse Events"
     output_dir = "studies/xyz123/rtf"
-    footnote = [
-        "Every participant is counted a single time for each applicable row and column."
-    ]
+    footnote = ["Every participant is counted a single time for each applicable row and column."]
     source = None
 
     population_df_name = "adsl"
@@ -419,7 +416,9 @@ def study_plan_to_ae_specific(
         # Get parameter filter if parameter is specified
         parameter_filter = None
         if parameter:
-            param_names, param_filters, param_labels, _ = parser.get_parameter_info(parameter)  # Ignore indent for AE
+            param_names, param_filters, param_labels, _ = parser.get_parameter_info(
+                parameter
+            )  # Ignore indent for AE
             # For ae_specific, use the first (and typically only) filter
             parameter_filter = param_filters[0] if param_filters else None
 

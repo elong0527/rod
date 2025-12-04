@@ -16,7 +16,7 @@ and parse.py utilities for StudyPlan parsing.
 from pathlib import Path
 
 import polars as pl
-from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFSource, RTFTitle
+from rtflite import RTFDocument
 
 from ..common.count import count_subject, count_subject_with_observation
 from ..common.parse import StudyPlanParser
@@ -89,7 +89,9 @@ def study_plan_to_ae_summary(
 
         # Get filters and configuration using parser
         population_filter = parser.get_population_filter(population)
-        param_names, param_filters, param_labels, _ = parser.get_parameter_info(parameter)  # Ignore indent for AE
+        param_names, param_filters, param_labels, _ = parser.get_parameter_info(
+            parameter
+        )  # Ignore indent for AE
         obs_filter = parser.get_observation_filter(observation)
         group_var_name, group_labels = parser.get_group_info(group)
 

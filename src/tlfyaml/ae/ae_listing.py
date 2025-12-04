@@ -437,7 +437,9 @@ def study_plan_to_ae_listing(
         # Get parameter filter if parameter is specified
         parameter_filter = None
         if parameter:
-            param_names, param_filters, param_labels, _ = parser.get_parameter_info(parameter)  # Ignore indent for AE
+            param_names, param_filters, param_labels, _ = parser.get_parameter_info(
+                parameter
+            )  # Ignore indent for AE
             # For ae_listing, use the first (and typically only) filter
             parameter_filter = param_filters[0] if param_filters else None
 
