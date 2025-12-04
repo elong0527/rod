@@ -1,5 +1,6 @@
 # pyre-strict
 import unittest
+
 import polars as pl
 
 from tlfyaml.utils import apply_common_filters
