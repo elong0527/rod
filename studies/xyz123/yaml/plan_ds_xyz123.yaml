@@ -1,0 +1,57 @@
+# Study XYZ123 - Analysis Plan for DS
+# This file contains plan specifications for DS analysis
+
+study:
+  name: "XYZ123"
+  title: "Phase III Study of Drug X vs Placebo"
+  template:
+    - ../../yaml/organization.yaml
+
+data:
+  - name: adsl 
+    path: ../../../data/adsl.parquet
+  - name: ds
+    path: ../../../data/ds.parquet
+
+population:
+  - name: apat
+    label: "All Participants as Treated"
+    filter: "adsl:saffl == 'Y'"
+
+  - name: itt
+    label: "Intention-to-Treat"
+    filter: "adsl:ittfl == 'Y'"
+
+group:
+  - name: trt01a
+    variable: "adsl:trt01a"
+
+parameter:
+  - name: enrolled
+    label: "Enrolled"
+    filter: "adsl:saffl == 'Y'"
+  - name: discontinued
+    label: "Discontinued"
+    filter: "ds:DSDECOD in ['Completed', 'Withdrawn', 'Screening Failure']"
+  - name: withdrawn
+    label: "Withdrawn"
+    filter: "ds:DSDECOD in ['Withdrawn']"
+    indent: 1
+  - name: screening_failure
+    label: "Screening Failure"
+    filter: "ds:DSDECOD in ['Screening Failure']"
+    indent: 1
+
+observation:
+  - name: disposition
+    label: "Disposition"
+    filter: "ds:DSDECOD is not null"
+
+# Analysis Plans
+plans:
+  # DS - Single combination
+  - analysis: "disposition_table_1_1"
+    title: "Disposition of Participants"
+    population: "itt"
+    observation: "disposition"
+    parameter: "enrolled;discontinued;withdrawn;screening_failure"

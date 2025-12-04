@@ -17,10 +17,10 @@ from pathlib import Path
 import polars as pl
 
 from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFSource, RTFTitle
-from ..plan import StudyPlan
-from ..count import count_subject, count_subject_with_observation
-from ..parse import StudyPlanParser
-from ..utils import apply_common_filters
+from ..common.plan import StudyPlan
+from ..common.count import count_subject, count_subject_with_observation
+from ..common.parse import StudyPlanParser
+from ..common.utils import apply_common_filters
 from .ae_utils import create_ae_rtf_table
 
 
@@ -43,7 +43,7 @@ def study_plan_to_ae_summary(
     # Meta data
     analysis = "ae_summary"
     analysis_label = "Analysis of Adverse Event Summary"
-    output_dir = "examples/rtf"
+    output_dir = "studies/xyz123/rtf"
     footnote = ["Every participant is counted a single time for each applicable row and column."]
     source = None
 
@@ -84,7 +84,7 @@ def study_plan_to_ae_summary(
 
         # Get filters and configuration using parser
         population_filter = parser.get_population_filter(population)
-        param_names, param_filters, param_labels = parser.get_parameter_info(parameter)
+        param_names, param_filters, param_labels, _ = parser.get_parameter_info(parameter)  # Ignore indent for AE
         obs_filter = parser.get_observation_filter(observation)
         group_var_name, group_labels = parser.get_group_info(group)
 

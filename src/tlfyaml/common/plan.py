@@ -48,6 +48,7 @@ class Parameter(Keyword):
 
     filter: str = ""
     terms: Optional[Dict[str, str]] = None
+    indent: int = 0  # Indentation level for hierarchical display
 
 
 @dataclass
