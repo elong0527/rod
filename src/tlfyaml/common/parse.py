@@ -193,15 +193,17 @@ class StudyPlanParser:
             return parse_filter_to_sql(obs.filter)
         return None
 
-    def get_parameter_info(self, parameter: str) -> tuple[list[str], list[str], list[str]]:
+    def get_parameter_info(
+        self, parameter: str
+    ) -> tuple[list[str], list[str], list[str], list[int]]:
         """
-        Get parameter names, filters, and labels.
+        Get parameter names, filters, labels, and indent levels.
 
         Args:
             parameter: Parameter keyword, can be semicolon-separated (e.g., "any;rel;ser")
 
         Returns:
-            Tuple of (parameter_names, parameter_filters, parameter_labels)
+            Tuple of (parameter_names, parameter_filters, parameter_labels, parameter_indents)
 
         Raises:
             ValueError: If any parameter keyword not found
@@ -209,6 +211,7 @@ class StudyPlanParser:
         param_names = parse_parameter(parameter)
         param_labels = []
         param_filters = []
+        param_indents = []
 
         for param_name in param_names:
             param = self.study_plan.keywords.get_parameter(param_name)
@@ -216,8 +219,9 @@ class StudyPlanParser:
                 raise ValueError(f"Parameter '{param_name}' not found")
             param_filters.append(parse_filter_to_sql(param.filter))
             param_labels.append(param.label or param_name)
+            param_indents.append(param.indent)
 
-        return param_names, param_filters, param_labels
+        return param_names, param_filters, param_labels, param_indents
 
     def get_single_parameter_info(self, parameter: str) -> tuple[str, str]:
         """

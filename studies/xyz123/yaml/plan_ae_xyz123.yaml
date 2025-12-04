@@ -1,17 +1,3 @@
-# Study XYZ123 - Analysis Plan
-# This file contains only the plan specifications using condensed keyword approach
-
-study:
-  name: "XYZ123"
-  title: "Phase III Study of Drug X vs Placebo"
-  template:
-    - organization.yaml
-
-# Analysis Plans - Using metalite-style condensed format
-plans:
-  # Demographics - Single combination
-  - analysis: "demographics"
-    population: "itt"
     group: "trt01a"
 
   # AE Summary tables
@@ -96,10 +82,3 @@ parameter:
     terms:
       before: "serious"
       after: "resulting in death"
-    
-
-data:
-  - name: adsl 
-    path: ../../data/adsl.parquet
-  - name: adae
-    path: ../../data/adae.parquet

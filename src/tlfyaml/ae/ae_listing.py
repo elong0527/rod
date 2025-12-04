@@ -21,9 +21,9 @@ from typing import Any
 import polars as pl
 from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFPage, RTFSource, RTFTitle
 
-from ..parse import StudyPlanParser
-from ..plan import StudyPlan
-from ..utils import apply_common_filters
+from ..common.parse import StudyPlanParser
+from ..common.plan import StudyPlan
+from ..common.utils import apply_common_filters
 from .ae_utils import get_ae_parameter_title
 
 
@@ -354,8 +354,8 @@ def study_plan_to_ae_listing(
 
     # Meta data
     analysis = "ae_listing"
-    output_dir = "examples/rtf"
-    col_rel_width = [1.0, 1.0, 3.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0]
+    output_dir = "studies/xyz123/rtf"
+    col_rel_width = [1, 1, 3, 1, 1, 1, 1, 1, 1, 2]
     footnote = None
     source = None
 
@@ -437,7 +437,7 @@ def study_plan_to_ae_listing(
         # Get parameter filter if parameter is specified
         parameter_filter = None
         if parameter:
-            param_names, param_filters, param_labels = parser.get_parameter_info(parameter)
+            param_names, param_filters, param_labels, _ = parser.get_parameter_info(parameter)  # Ignore indent for AE
             # For ae_listing, use the first (and typically only) filter
             parameter_filter = param_filters[0] if param_filters else None
 

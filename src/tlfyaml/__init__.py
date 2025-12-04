@@ -1,30 +1,39 @@
-# pyre-strict
-from .ae.ae_listing import (
-    # AE listing functions
-    ae_listing,
-    study_plan_to_ae_listing,
+from .common.plan import (
+    # Core classes
+    load_plan,
 )
-from .ae.ae_specific import (
-    # AE specific functions
-    ae_specific,
-    study_plan_to_ae_specific,
-)
+
 from .ae.ae_summary import (
     # AE summary functions
     ae_summary,
     study_plan_to_ae_summary,
 )
-from .count import (
+
+from .ae.ae_specific import (
+    # AE specific functions
+    ae_specific,
+    study_plan_to_ae_specific,
+)
+
+from .ae.ae_listing import (
+    # AE listing functions
+    ae_listing,
+    study_plan_to_ae_listing,
+)
+
+from .common.count import (
     count_subject,
     count_subject_with_observation,
 )
-from .parse import (
+
+from .common.parse import (
     StudyPlanParser,
     parse_filter_to_sql,
 )
-from .plan import (
-    # Core classes
-    load_plan,
+
+from .disposition.disposition_table_1_1 import (
+    disposition_table_1_1,
+    study_plan_to_disposition_table_1_1,
 )
 
 # Main exports for common usage
@@ -39,6 +48,9 @@ __all__ = [
     "study_plan_to_ae_summary",
     "study_plan_to_ae_specific",
     "study_plan_to_ae_listing",
+    # Disposition analysis
+    "disposition_table_1_1",
+    "study_plan_to_disposition_table_1_1",
     # Count functions
     "count_subject",
     "count_subject_with_observation",
