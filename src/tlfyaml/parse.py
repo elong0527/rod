@@ -99,23 +99,23 @@ def _parse_filter_expr(filter_str: str) -> Any:
     # Handle 'in' operator: column in ['A', 'B'] -> pl.col(column).is_in(['A', 'B'])
     in_pattern = r"(\w+)\s+in\s+\[([^\]]+)\]"
 
-    def replace_in(match: re.Match) -> str:
+    def _parse_between(match: re.Match[str]) -> str:
         col = match.group(1).upper()
         values = match.group(2)
         return f"(pl.col('{col}').is_in([{values}]))"
 
-    filter_str = re.sub(in_pattern, replace_in, filter_str)
+    filter_str = re.sub(in_pattern, _parse_between, filter_str)
 
     # Handle equality/inequality
     eq_pattern = r"(\w+)\s*(==|!=|>|<|>=|<=)\s*'([^']+)'"
 
-    def replace_eq(match: re.Match) -> str:
+    def _parse_like(match: re.Match[str]) -> str:
         col = match.group(1).upper()
         op = match.group(2)
         val = match.group(3)
         return f"(pl.col('{col}') {op} '{val}')"
 
-    filter_str = re.sub(eq_pattern, replace_eq, filter_str)
+    filter_str = re.sub(eq_pattern, _parse_like, filter_str)
 
     # Replace 'and'/'or'
     filter_str = filter_str.replace(" and ", " & ")
@@ -149,7 +149,7 @@ class StudyPlanParser:
     from StudyPlan keywords and convert them to analysis-ready formats.
     """
 
-    def __init__(self, study_plan: StudyPlan):
+    def __init__(self, study_plan: StudyPlan) -> None:
         """
         Initialize parser with a StudyPlan object.
 

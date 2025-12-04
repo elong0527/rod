@@ -109,7 +109,7 @@ class KeywordRegistry:
         self._load_keyword_type(data, "data", DataSource, self.data_sources)
 
     def _load_keyword_type(
-        self, data: Dict[str, Any], key: str, keyword_class: Any, target_dict: Dict
+        self, data: Dict[str, Any], key: str, keyword_class: Any, target_dict: Dict[str, Any]
     ) -> None:
         """Generic method to load a type of keyword."""
         for item_data in data.get(key, []):
@@ -189,27 +189,23 @@ class PlanExpander:
         parts = [plan.analysis.replace("_", " ").title()]
         if (pop := self.keywords.get_population(plan.population)) and pop.label:
             parts.append(f"- {pop.label}")
-        if (
-            plan.observation
-            and (obs := self.keywords.get_observation(plan.observation))
-            and obs.label
-        ):
-            parts.append(f"- {obs.label}")
-        if (
-            plan.parameter
-            and (param := self.keywords.get_parameter(plan.parameter))
-            and param.label
-        ):
-            parts.append(f"- {param.label}")
+        if plan.observation:
+            obs = self.keywords.get_observation(plan.observation)
+            if obs and obs.label:
+                parts.append(f"- {obs.label}")
+        if plan.parameter:
+            param = self.keywords.get_parameter(plan.parameter)
+            if param and param.label:
+                parts.append(f"- {param.label}")
         return " ".join(parts)
 
 
 class StudyPlan:
     """Main study plan."""
 
-    def __init__(self, study_data: Dict[str, Any], base_path: Optional[Path] = None):
+    def __init__(self, study_data: Dict[str, Any], base_path: Optional[Path] = None) -> None:
         self.study_data = study_data
-        self.base_path = base_path or Path(".")
+        self.base_path: Path = base_path or Path(".")
         self.datasets: Dict[str, pl.DataFrame] = {}
         self.keywords = KeywordRegistry()
         self.expander = PlanExpander(self.keywords)
@@ -330,7 +326,7 @@ class StudyPlan:
             print(df)
 
     def __str__(self) -> str:
-        study_name = self.study_data.get("study", {}).get("name", "Unknown")
+        study_name = self.study_data.get("study", Dict[str, Any]()).get("name", "Unknown")
         condensed_plans = len(self.study_data.get("plans", []))
         individual_analyses = len(self.get_plan_df())
         return (

@@ -2,7 +2,7 @@
 from typing import Any
 
 import polars as pl
-from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFSource, RTFTitle
+from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFPage, RTFSource, RTFTitle
 
 
 def get_ae_parameter_title(param: Any, prefix: str = "Participants With") -> str:
@@ -75,6 +75,7 @@ def create_ae_rtf_table(
     footnote: list[str] | str | None,
     source: list[str] | str | None,
     borders_2: bool = True,
+    orientation: str = "landscape",
 ) -> RTFDocument:
     """
     Create a standardized RTF table document with 1 or 2 header rows.
@@ -110,8 +111,9 @@ def create_ae_rtf_table(
 
         headers.append(RTFColumnHeader(**h2_kwargs))
 
-    rtf_components = {
+    rtf_components: dict[str, Any] = {
         "df": df,
+        "rtf_page": RTFPage(orientation=orientation),
         "rtf_title": RTFTitle(text=title_list),
         "rtf_column_header": headers,
         "rtf_body": RTFBody(

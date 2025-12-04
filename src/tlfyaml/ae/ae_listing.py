@@ -18,6 +18,7 @@ for StudyPlan parsing.
 from pathlib import Path
 
 import polars as pl
+from typing import Any
 from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFPage, RTFSource, RTFTitle
 
 from ..parse import StudyPlanParser
@@ -198,11 +199,18 @@ def ae_listing_rtf(
 
     # Normalize title, footnote, source to lists
     title_list = title
-    footnote_list = [footnote] if isinstance(footnote, str) else (footnote or [])
-    source_list = [source] if isinstance(source, str) else (source or [])
+    if isinstance(footnote, str):
+        footnote_list: list[str] = [footnote]
+    else:
+        footnote_list: list[str] = footnote or []
+
+    if isinstance(source, str):
+        source_list: list[str] = [source]
+    else:
+        source_list: list[str] = source or []
 
     # Build RTF document
-    rtf_components = {
+    rtf_components: dict[str, Any] = {
         "df": df,
         "rtf_page": RTFPage(orientation=orientation),
         "rtf_title": RTFTitle(text=title_list),
