@@ -1,7 +1,11 @@
-import pytest
+# pyre-strict
 from pathlib import Path
 from unittest.mock import mock_open, patch
+
+import pytest
+
 from tlfyaml.yaml_loader import YamlInheritanceLoader
+
 
 @pytest.fixture
 def loader():

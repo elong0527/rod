@@ -1,6 +1,9 @@
+# pyre-strict
 from typing import Any
+
 import polars as pl
 from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFSource, RTFTitle
+
 
 def get_ae_parameter_title(param: Any, prefix: str = "Participants With") -> str:
     """

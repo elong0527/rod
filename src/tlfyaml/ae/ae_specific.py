@@ -1,3 +1,4 @@
+# pyre-strict
 """
 Adverse Event (AE) Specific Analysis Functions
 
@@ -18,13 +19,13 @@ and parse.py utilities for StudyPlan parsing.
 from pathlib import Path
 
 import polars as pl
+from rtflite import RTFDocument
 
-from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFSource, RTFTitle
-from ..plan import StudyPlan
 from ..count import count_subject, count_subject_with_observation
 from ..parse import StudyPlanParser
+from ..plan import StudyPlan
 from ..utils import apply_common_filters
-from .ae_utils import get_ae_parameter_title, get_ae_parameter_row_labels, create_ae_rtf_table
+from .ae_utils import create_ae_rtf_table, get_ae_parameter_row_labels, get_ae_parameter_title
 
 
 def ae_specific_ard(
@@ -134,7 +135,7 @@ def ae_specific_ard(
     # Extract 'with' counts
     n_with = (
         event_counts
-        .filter(pl.col("__has_event__") == True)
+        .filter(pl.col("__has_event__"))
         .select([
             pl.lit(n_with_label).alias("__index__"),
             pl.col(group_var_name).cast(pl.String).alias("__group__"),
@@ -145,7 +146,7 @@ def ae_specific_ard(
     # Extract 'without' counts
     n_without = (
         event_counts
-        .filter(pl.col("__has_event__") == False)
+        .filter(~pl.col("__has_event__"))
         .select([
             pl.lit(n_without_label).alias("__index__"),
             pl.col(group_var_name).cast(pl.String).alias("__group__"),
@@ -376,7 +377,7 @@ def study_plan_to_ae_specific(
 
     # Meta data
     analysis = "ae_specific"
-    analysis_label = "Participants with Adverse Events"
+    # analysis_label = "Participants with Adverse Events"
     output_dir = "examples/rtf"
     footnote = [
         "Every participant is counted a single time for each applicable row and column."

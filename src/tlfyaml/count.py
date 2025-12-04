@@ -1,4 +1,6 @@
+# pyre-strict
 import polars as pl
+
 
 def _to_pop(
     population,
@@ -16,7 +18,10 @@ def _to_pop(
         raise ValueError(f"The '{id}' column in the population DataFrame is not unique.")
 
     if missing_group == "error" and pop[group].is_null().any():
-        raise ValueError(f"Missing values found in the '{group}' column of the population DataFrame, and 'missing_group' is set to 'error'.")
+        raise ValueError(
+            f"Some values in the '{group}' column of the observation DataFrame are not present in the "
+            f"'{group}' column of the population DataFrame, and 'missing_group' is set to 'error'."
+        )
 
     # Convert group to Enum for consistent categorical ordering
     u_pop = pop[group].unique().sort().to_list()
@@ -49,7 +54,8 @@ def count_subject(
                                    must include 'id' and 'group' columns.
         id (str): The name of the subject ID column (e.g., "USUBJID").
         group (str): The name of the treatment group column (e.g., "TRT01A").
-        total (bool, optional): If True, adds a 'Total' group with counts across all groups. Defaults to True.
+        total (bool, optional): If True, adds a 'Total' group with counts across all groups. 
+                                Defaults to True.
         missing_group (str, optional): How to handle missing values in the group column.
                                        "error" will raise a ValueError. Defaults to "error".
 
@@ -94,7 +100,8 @@ def count_subject_with_observation(
         missing_group (str, optional): How to handle missing values in the group column.
                                        "error" will raise a ValueError. Defaults to "error".
         pct_digit (int, optional): Number of decimal places for percentage formatting. Defaults to 1.
-        max_n_width (int, optional): Fixed width for subject count formatting. If None, inferred from data. Defaults to None.
+        max_n_width (int, optional): Fixed width for subject count formatting. If None, inferred 
+                                     from data. Defaults to None.
 
     Returns:
         pl.DataFrame: A DataFrame with counts and percentages of subjects and observations
@@ -112,10 +119,13 @@ def count_subject_with_observation(
 
     obs = observation.select(id, variable).join(pop, on = id, how = "left")
 
-    if obs[id].is_in(pop[id].to_list()).all() == False:
+    if not obs[id].is_in(pop[id].to_list()).all():
         # Get IDs that are in obs but not in pop
         missing_ids = obs.filter(~pl.col(id).is_in(pop[id].to_list())).select(id).unique().to_series().to_list()
-        raise ValueError(f"Some '{id}' values in the observation DataFrame are not present in the population DataFrame: {missing_ids}")
+        raise ValueError(
+            f"Some '{id}' values in the observation DataFrame are not present in the population "
+            f"DataFrame: {missing_ids}"
+        )
 
     df_pop =count_subject(
         population = population,
@@ -177,7 +187,9 @@ def count_subject_with_observation(
         pl.col("pct_subj_fmt").str.pad_start(max_pct_width, " "),
         pl.col("n_subj").cast(pl.String).str.pad_start(max_n_width, " ").alias("n_subj_fmt")
     ]).with_columns(
-        n_pct_subj_fmt = pl.concat_str([pl.col("n_subj_fmt"), pl.lit(" ("), pl.col("pct_subj_fmt"), pl.lit(")")])
+        n_pct_subj_fmt = pl.concat_str(
+            [pl.col("n_subj_fmt"), pl.lit(" ("), pl.col("pct_subj_fmt"), pl.lit(")")]
+        )
     ).sort(group, variable)
 
     return df_obs

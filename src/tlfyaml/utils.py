@@ -1,4 +1,6 @@
+# pyre-strict
 import polars as pl
+
 
 def apply_common_filters(
     population: pl.DataFrame,

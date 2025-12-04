@@ -1,3 +1,4 @@
+# pyre-strict
 """
 Clean, simple TLF plan system.
 This module provides a straightforward implementation for clinical TLF generation
@@ -227,7 +228,8 @@ class StudyPlan:
                 print(f"Successfully loaded dataset '{name}' from '{path}'")
             except Exception as e:
                 print(
-                    f"Warning: Could not load dataset '{name}' from '{data_source.path}'. Reason: {e}"
+                    f"Warning: Could not load dataset '{name}' from '{data_source.path}'. "
+                    f"Reason: {e}"
                 )
 
     def get_plan_df(self) -> pl.DataFrame:
@@ -331,7 +333,10 @@ class StudyPlan:
         study_name = self.study_data.get("study", {}).get("name", "Unknown")
         condensed_plans = len(self.study_data.get("plans", []))
         individual_analyses = len(self.get_plan_df())
-        return f"StudyPlan(study='{study_name}', plans={condensed_plans}, analyses={individual_analyses})"
+        return (
+            f"StudyPlan(study='{study_name}', plans={condensed_plans}, "
+            f"analyses={individual_analyses})"
+        )
 
 
 def load_plan(plan_path: str) -> StudyPlan:

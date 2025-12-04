@@ -1,6 +1,8 @@
+# pyre-strict
 import polars as pl
-import pytest
+
 from tlfyaml.utils import apply_common_filters
+
 
 def test_apply_common_filters_no_filters():
     pop = pl.DataFrame({"id": [1, 2, 3], "group": ["A", "B", "A"]})
@@ -20,7 +22,9 @@ def test_apply_common_filters_population_filter():
     
     expected_pop = pop.filter(pl.col("group") == "A")
     assert res_pop.equals(expected_pop)
-    assert res_obs.equals(obs) # Observation not filtered by population filter directly in this function
+    assert res_obs.equals(
+        obs
+    )  # Observation not filtered by population filter directly in this function
 
 def test_apply_common_filters_observation_filter():
     pop = pl.DataFrame({"id": [1, 2, 3]})

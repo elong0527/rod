@@ -1,3 +1,4 @@
+# pyre-strict
 """
 Adverse Event (AE) Analysis Functions
 
@@ -15,11 +16,11 @@ and parse.py utilities for StudyPlan parsing.
 from pathlib import Path
 
 import polars as pl
+from rtflite import RTFDocument
 
-from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFSource, RTFTitle
-from ..plan import StudyPlan
 from ..count import count_subject, count_subject_with_observation
 from ..parse import StudyPlanParser
+from ..plan import StudyPlan
 from ..utils import apply_common_filters
 from .ae_utils import create_ae_rtf_table
 
@@ -77,7 +78,11 @@ def study_plan_to_ae_summary(
 
         # Validate group is specified
         if group is None:
-            raise ValueError(f"Group not specified in YAML for analysis: population={population}, observation={observation}, parameter={parameter}. Please add group to your YAML plan.")
+            raise ValueError(
+                f"Group not specified in YAML "
+                f"population={population}, observation={observation}, parameter={parameter}. "
+                "Please add group to your YAML plan."
+            )
 
         # Get datasets using parser
         population_df, observation_df = parser.get_datasets(population_df_name, observation_df_name)

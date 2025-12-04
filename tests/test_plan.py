@@ -1,16 +1,8 @@
-import pytest
+# pyre-strict
 from unittest.mock import MagicMock, patch
-from tlfyaml.plan import (
-    KeywordRegistry, 
-    PlanExpander, 
-    AnalysisPlan, 
-    StudyPlan,
-    Population,
-    Observation,
-    Parameter,
-    Group,
-    DataSource
-)
+
+from tlfyaml.plan import KeywordRegistry, PlanExpander, StudyPlan
+
 
 def test_keyword_registry_load():
     registry = KeywordRegistry()

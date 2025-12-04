@@ -1,3 +1,4 @@
+# pyre-strict
 """
 Adverse Event (AE) Listing Functions
 
@@ -17,10 +18,10 @@ for StudyPlan parsing.
 from pathlib import Path
 
 import polars as pl
-
 from rtflite import RTFBody, RTFColumnHeader, RTFDocument, RTFFootnote, RTFPage, RTFSource, RTFTitle
-from ..plan import StudyPlan
+
 from ..parse import StudyPlanParser
+from ..plan import StudyPlan
 from ..utils import apply_common_filters
 from .ae_utils import get_ae_parameter_title
 

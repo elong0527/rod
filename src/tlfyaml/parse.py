@@ -1,3 +1,4 @@
+# pyre-strict
 """
 StudyPlan Parsing Utilities
 

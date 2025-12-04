@@ -1,5 +1,6 @@
-import pytest
+# pyre-strict
 from tlfyaml.parse import parse_filter_to_sql, parse_parameter
+
 
 def test_parse_filter_to_sql_simple():
     assert parse_filter_to_sql("adsl:saffl == 'Y'") == "SAFFL = 'Y'"

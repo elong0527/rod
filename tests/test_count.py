@@ -1,6 +1,9 @@
+# pyre-strict
 import polars as pl
 import pytest
+
 from tlfyaml.count import count_subject, count_subject_with_observation
+
 
 @pytest.fixture
 def population_data():
