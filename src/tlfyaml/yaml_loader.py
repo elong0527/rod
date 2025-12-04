@@ -1,7 +1,7 @@
 # pyre-strict
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import yaml
 
@@ -38,7 +38,9 @@ class YamlInheritanceLoader:
 
         return self._deep_merge(merged_template_data, data)
 
-    def deep_merge_lists(self, list1: list[dict[str, Any]], list2: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def deep_merge_lists(
+        self, list1: list[dict[str, Any]], list2: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         # Heuristic to check if these are lists of keywords (dicts with a 'name')
         # This logic is specific to how this project uses YAML inheritance.
         is_keyword_list = all(isinstance(i, dict) and "name" in i for i in list2) and all(
