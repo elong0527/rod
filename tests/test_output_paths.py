@@ -1,14 +1,15 @@
 # pyre-strict
 import unittest
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 import polars as pl
 
-from tlfyaml.common.plan import StudyPlan
 from tlfyaml.ae.ae_listing import study_plan_to_ae_listing
-from tlfyaml.ae.ae_summary import study_plan_to_ae_summary
 from tlfyaml.ae.ae_specific import study_plan_to_ae_specific
+from tlfyaml.ae.ae_summary import study_plan_to_ae_summary
 from tlfyaml.disposition.disposition_table_1_1 import study_plan_to_disposition_table_1_1
+
 
 class TestOutputPaths(unittest.TestCase):
     def setUp(self) -> None:
@@ -66,58 +67,76 @@ class TestOutputPaths(unittest.TestCase):
         output_files = study_plan_to_ae_listing(self.mock_plan)
         
         self.assertEqual(len(output_files), 1)
-        self.assertEqual(Path(output_files[0]), Path("custom/output/dir/ae_listing_pop1_obs1_param1.rtf"))
+        self.assertEqual(
+            Path(output_files[0]),
+            Path("custom/output/dir/ae_listing_pop1_obs1_param1.rtf"),
+        )
 
     @patch("tlfyaml.ae.ae_summary.ae_summary")
     def test_ae_summary_output_path(self, mock_ae_summary: MagicMock) -> None:
         mock_ae_summary.side_effect = lambda **kwargs: kwargs["output_file"]
-        
-        self.mock_plan.get_plan_df.return_value = pl.DataFrame({
-            "analysis": ["ae_summary"],
-            "population": ["pop1"],
-            "observation": ["obs1"],
-            "parameter": ["param1"],
-            "group": ["grp1"],
-            "name": ["test_analysis"]
-        })
-        
+
+        self.mock_plan.get_plan_df.return_value = pl.DataFrame(
+            {
+                "analysis": ["ae_summary"],
+                "population": ["pop1"],
+                "observation": ["obs1"],
+                "parameter": ["param1"],
+                "group": ["grp1"],
+                "name": ["test_analysis"],
+            }
+        )
+
         output_files = study_plan_to_ae_summary(self.mock_plan)
-        
+
         self.assertEqual(len(output_files), 1)
-        self.assertEqual(Path(output_files[0]), Path("custom/output/dir/ae_summary_pop1_obs1_param1.rtf"))
+        self.assertEqual(
+            Path(output_files[0]),
+            Path("custom/output/dir/ae_summary_pop1_obs1_param1.rtf"),
+        )
 
     @patch("tlfyaml.ae.ae_specific.ae_specific")
     def test_ae_specific_output_path(self, mock_ae_specific: MagicMock) -> None:
         mock_ae_specific.side_effect = lambda **kwargs: kwargs["output_file"]
-        
-        self.mock_plan.get_plan_df.return_value = pl.DataFrame({
-            "analysis": ["ae_specific"],
-            "population": ["pop1"],
-            "observation": ["obs1"],
-            "parameter": ["param1"],
-            "group": ["grp1"],
-            "name": ["test_analysis"]
-        })
-        
+
+        self.mock_plan.get_plan_df.return_value = pl.DataFrame(
+            {
+                "analysis": ["ae_specific"],
+                "population": ["pop1"],
+                "observation": ["obs1"],
+                "parameter": ["param1"],
+                "group": ["grp1"],
+                "name": ["test_analysis"],
+            }
+        )
+
         output_files = study_plan_to_ae_specific(self.mock_plan)
-        
+
         self.assertEqual(len(output_files), 1)
-        self.assertEqual(Path(output_files[0]), Path("custom/output/dir/ae_specific_pop1_obs1_param1.rtf"))
+        self.assertEqual(
+            Path(output_files[0]),
+            Path("custom/output/dir/ae_specific_pop1_obs1_param1.rtf"),
+        )
 
     @patch("tlfyaml.disposition.disposition_table_1_1.disposition_table_1_1")
     def test_disposition_output_path(self, mock_disposition: MagicMock) -> None:
         mock_disposition.side_effect = lambda **kwargs: kwargs["output_file"]
-        
-        self.mock_plan.get_plan_df.return_value = pl.DataFrame({
-            "analysis": ["disposition_table_1_1"],
-            "population": ["pop1"],
-            "observation": ["obs1"],
-            "parameter": ["param1"],
-            "group": ["grp1"],
-            "name": ["test_analysis"]
-        })
-        
+
+        self.mock_plan.get_plan_df.return_value = pl.DataFrame(
+            {
+                "analysis": ["disposition_table_1_1"],
+                "population": ["pop1"],
+                "observation": ["obs1"],
+                "parameter": ["param1"],
+                "group": ["grp1"],
+                "name": ["test_analysis"],
+            }
+        )
+
         output_files = study_plan_to_disposition_table_1_1(self.mock_plan)
-        
+
         self.assertEqual(len(output_files), 1)
-        self.assertEqual(Path(output_files[0]), Path("custom/output/dir/disposition_table_1_1_pop1_grp1.rtf"))
+        self.assertEqual(
+            Path(output_files[0]),
+            Path("custom/output/dir/disposition_table_1_1_pop1_grp1.rtf"),
+        )
