@@ -19,11 +19,7 @@ import polars as pl
 sys.path.insert(0, 'src')
 
 from rtflite import LibreOfficeConverter
-try:
-    converter = LibreOfficeConverter()
-except FileNotFoundError:
-    converter = None
-    print("Warning: LibreOffice not found. PDF conversion will be skipped.")
+converter = LibreOfficeConverter()
 ```
 
 ```{python}
