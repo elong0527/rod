@@ -8,7 +8,7 @@ import polars as pl
 from tlfyaml.ae.ae_listing import study_plan_to_ae_listing
 from tlfyaml.ae.ae_specific import study_plan_to_ae_specific
 from tlfyaml.ae.ae_summary import study_plan_to_ae_summary
-from tlfyaml.disposition.disposition_table_1_1 import study_plan_to_disposition_table_1_1
+from tlfyaml.disposition.disposition import study_plan_to_disposition
 
 
 class TestOutputPaths(unittest.TestCase):
@@ -120,7 +120,7 @@ class TestOutputPaths(unittest.TestCase):
             Path("custom/output/dir/ae_specific_pop1_obs1_param1.rtf"),
         )
 
-    @patch("tlfyaml.disposition.disposition_table_1_1.disposition_table_1_1")
+    @patch("tlfyaml.disposition.disposition.disposition")
     def test_disposition_output_path(self, mock_disposition: MagicMock) -> None:
         mock_disposition.side_effect = lambda **kwargs: kwargs["output_file"]
 
@@ -135,7 +135,7 @@ class TestOutputPaths(unittest.TestCase):
             }
         )
 
-        output_files = study_plan_to_disposition_table_1_1(self.mock_plan)
+        output_files = study_plan_to_disposition(self.mock_plan)
 
         self.assertEqual(len(output_files), 1)
         self.assertEqual(
