@@ -117,7 +117,7 @@ def count_subject_with_observation(
         missing_group=missing_group,
     )
 
-    obs = observation.select(id, variable).join(pop, on=id, how="left")
+    obs = observation.select(id, variable).join(pop, on=id, how="inner")
 
     if not obs[id].is_in(pop[id].to_list()).all():
         # Get IDs that are in obs but not in pop
