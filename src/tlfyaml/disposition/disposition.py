@@ -2,11 +2,11 @@
 Disposition Table 1.1 Analysis Functions
 
 This module provides a pipeline for Disposition Table 1.1 summary analysis:
-- disposition_table_1_1_ard: Generate Analysis Results Data (ARD)
-- disposition_table_1_1_df: Transform ARD to display format
-- disposition_table_1_1_rtf: Generate formatted RTF output
-- disposition_table_1_1: Complete pipeline wrapper
-- study_plan_to_disposition_table_1_1: Batch generation from StudyPlan
+- disposition_ard: Generate Analysis Results Data (ARD)
+- disposition_df: Transform ARD to display format
+- disposition_rtf: Generate formatted RTF output
+- disposition: Complete pipeline wrapper
+- study_plan_to_disposition: Batch generation from StudyPlan
 """
 
 from pathlib import Path
@@ -21,7 +21,7 @@ from ..common.plan import StudyPlan
 from ..common.utils import apply_common_filters
 
 
-def study_plan_to_disposition_table_1_1(
+def study_plan_to_disposition(
     study_plan: StudyPlan,
 ) -> list[str]:
     """
@@ -103,7 +103,7 @@ def study_plan_to_disposition_table_1_1(
         filename = f"{analysis_type}_{population}{group_suffix}.rtf"
         output_file = str(Path(output_dir) / filename)
 
-        rtf_path = disposition_table_1_1(
+        rtf_path = disposition(
             population=population_df,
             observation=observation_df,
             population_filter=population_filter,
@@ -123,7 +123,7 @@ def study_plan_to_disposition_table_1_1(
     return rtf_files
 
 
-def disposition_table_1_1(
+def disposition(
     population: pl.DataFrame,
     observation: pl.DataFrame,
     population_filter: str | None,
@@ -143,7 +143,7 @@ def disposition_table_1_1(
     Complete Disposition Table 1.1 pipeline wrapper.
     """
     # Step 1: Generate ARD
-    ard = disposition_table_1_1_ard(
+    ard = disposition_ard(
         population=population,
         observation=observation,
         population_filter=population_filter,
@@ -156,10 +156,10 @@ def disposition_table_1_1(
     )
 
     # Step 2: Transform to display format
-    df = disposition_table_1_1_df(ard)
+    df = disposition_df(ard)
 
     # Step 3: Generate RTF
-    rtf_doc = disposition_table_1_1_rtf(
+    rtf_doc = disposition_rtf(
         df=df,
         title=title,
         footnote=footnote,
@@ -171,7 +171,7 @@ def disposition_table_1_1(
     return output_file
 
 
-def disposition_table_1_1_ard(
+def disposition_ard(
     population: pl.DataFrame,
     observation: pl.DataFrame,
     population_filter: str | None,
@@ -254,7 +254,7 @@ def disposition_table_1_1_ard(
     return ard
 
 
-def disposition_table_1_1_df(ard: pl.DataFrame) -> pl.DataFrame:
+def disposition_df(ard: pl.DataFrame) -> pl.DataFrame:
     """
     Transform ARD to display format.
     """
@@ -267,7 +267,7 @@ def disposition_table_1_1_df(ard: pl.DataFrame) -> pl.DataFrame:
     return df_wide
 
 
-def disposition_table_1_1_rtf(
+def disposition_rtf(
     df: pl.DataFrame,
     title: list[str],
     footnote: list[str] | None,
