@@ -43,11 +43,11 @@ jobs:
         # We dynamically pass the site-packages path from the uv environment using --search-path.
         run: uv run pyre --noninteractive --search-path $(uv run -q python -c "import site; print(site.getsitepackages()[0])") check
 
-      - name: Run Tests
-        run: uv run pytest
+      - name: Run Tests with Coverage
+        run: uv run pytest --cov=src --cov-report=xml --cov-report=term
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: elong0527/py-forestly
+          slug: elong0527/rod
