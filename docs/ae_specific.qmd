@@ -105,8 +105,7 @@ ae_specific(
 
 ```{python}
 #| echo: false
-if converter:
-    converter.convert("studies/xyz123/rtf/ae_specific.rtf", output_dir="docs/pdf/", format="pdf", overwrite=True)
+converter.convert("studies/xyz123/rtf/ae_specific.rtf", output_dir="docs/pdf/", format="pdf", overwrite=True)
 ```
 
 <embed src="pdf/ae_specific.pdf" style="width:100%; height:600px" type="application/pdf">
@@ -166,8 +165,7 @@ ae_specific_rtf(
 
 ```{python}
 #| echo: false
-if converter:
-    converter.convert("studies/xyz123/rtf/ae_specific_step.rtf", output_dir="docs/pdf/", format="pdf", overwrite=True)
+converter.convert("studies/xyz123/rtf/ae_specific_step.rtf", output_dir="docs/pdf/", format="pdf", overwrite=True)
 ```
 
 <embed src="pdf/ae_specific_step.pdf" style="width:100%; height:600px" type="application/pdf">
