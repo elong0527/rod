@@ -26,7 +26,7 @@ from .common.plan import (
     load_plan,
 )
 from .disposition.disposition import (
-    disposition,
+    disposition as disposition_table_1_1,
     study_plan_to_disposition,
 )
 
@@ -43,7 +43,7 @@ __all__ = [
     "study_plan_to_ae_specific",
     "study_plan_to_ae_listing",
     # Disposition analysis
-    "disposition",
+    "disposition_table_1_1",
     "study_plan_to_disposition",
     # Count functions
     "count_subject",
