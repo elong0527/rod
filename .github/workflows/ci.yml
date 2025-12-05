@@ -39,11 +39,9 @@ jobs:
         run: uv run mypy .
 
       - name: Run Pyre
-        # Pyre might not support all python versions or platforms perfectly in all setups, 
-        # but we include it as requested. 
-        # Note: pyre-check is often linux-only or specific. 
-        # We'll try running it via uv.
-        run: uv run pyre --noninteractive check
+        # Pyre needs to know where the site-packages are.
+        # We dynamically pass the site-packages path from the uv environment using --search-path.
+        run: uv run pyre --noninteractive --search-path $(uv run -q python -c "import site; print(site.getsitepackages()[0])") check
 
       - name: Run Tests
         run: uv run pytest
