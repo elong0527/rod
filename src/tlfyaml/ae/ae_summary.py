@@ -44,7 +44,7 @@ def study_plan_to_ae_summary(
     # Meta data
     analysis = "ae_summary"
     analysis_label = "Analysis of Adverse Event Summary"
-    output_dir = "studies/xyz123/rtf"
+    output_dir = study_plan.output_dir
     footnote = ["Every participant is counted a single time for each applicable row and column."]
     source = None
 

@@ -213,6 +213,12 @@ class StudyPlan:
         self.keywords.load_from_dict(self.study_data)
         self.load_datasets()
 
+    @property
+    def output_dir(self) -> str:
+        """Get output directory from study configuration."""
+        study_config = self.study_data.get("study", {})
+        return study_config.get("output", ".")
+
     def load_datasets(self) -> None:
         """Load datasets from paths specified in data_sources."""
         for name, data_source in self.keywords.data_sources.items():

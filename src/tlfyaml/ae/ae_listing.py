@@ -354,7 +354,7 @@ def study_plan_to_ae_listing(
 
     # Meta data
     analysis = "ae_listing"
-    output_dir = "studies/xyz123/rtf"
+    output_dir = study_plan.output_dir
     col_rel_width = [1.0, 1.0, 3.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0]
     footnote = None
     source = None

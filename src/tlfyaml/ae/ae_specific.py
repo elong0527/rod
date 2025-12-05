@@ -365,7 +365,7 @@ def study_plan_to_ae_specific(
 
     # Meta data
     analysis = "ae_specific"
-    output_dir = "studies/xyz123/rtf"
+    output_dir = study_plan.output_dir
     footnote = ["Every participant is counted a single time for each applicable row and column."]
     source = None
 

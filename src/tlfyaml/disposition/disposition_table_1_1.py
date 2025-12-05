@@ -29,7 +29,7 @@ def study_plan_to_disposition_table_1_1(
     """
     # Meta data
     analysis_type = "disposition_table_1_1"
-    output_dir = "studies/xyz123/rtf"
+    output_dir = study_plan.output_dir
     footnote = ["Percentages are based on the number of enrolled participants."]
     source = None
 
