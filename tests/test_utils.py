@@ -2,7 +2,7 @@
 import unittest
 
 import polars as pl
-from tlfyaml.utils import apply_common_filters
+from tlfyaml.common.utils import apply_common_filters
 
 
 class TestUtils(unittest.TestCase):

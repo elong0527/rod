@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from tlfyaml.plan import KeywordRegistry, PlanExpander, StudyPlan
+from tlfyaml.common.plan import KeywordRegistry, PlanExpander, StudyPlan
 
 
 class TestPlan(unittest.TestCase):
@@ -54,7 +54,7 @@ class TestPlan(unittest.TestCase):
             "plans": [],
         }
 
-        with patch("tlfyaml.plan.pl.read_parquet") as mock_read:
+        with patch("tlfyaml.common.plan.pl.read_parquet") as mock_read:
             mock_read.return_value = MagicMock()
 
             plan = StudyPlan(study_data)
