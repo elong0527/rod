@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tlfyaml"
+name = "csrlite"
 version = "0.1.0"
 description = "A hierarchical YAML-based framework for generating Tables, Listings, and Figures in clinical trials"
 authors = [{name = "Clinical Biostatistics Team", email = "biostat@example.com"}]
@@ -47,16 +47,16 @@ dev = [
 all = ["rtflite", "matplotlib>=3.5.0", "plotly>=5.0.0"]
 
 [project.urls]
-Homepage = "https://github.com/example/tlfyaml"
-Documentation = "https://tlfyaml.readthedocs.io/"
-Repository = "https://github.com/example/tlfyaml.git"
-"Bug Tracker" = "https://github.com/example/tlfyaml/issues"
+Homepage = "https://github.com/elong0527/csrlite"
+Documentation = "https://elong0527.github.io/csrlite"
+Repository = "https://github.com/elong0527/csrlite.git"
+"Bug Tracker" = "https://github.com/elong0527/csrlite/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-tlfyaml = ["*.yaml", "*.yml"]
+csrlite = ["*.yaml", "*.yml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -74,7 +74,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["src/tlfyaml"]
+source = ["src/csrlite"]
 branch = true
 
 [tool.coverage.report]
@@ -106,7 +106,7 @@ extend-exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 100
-known_first_party = ["tlfyaml"]
+known_first_party = ["csrlite"]
 
 [tool.mypy]
 python_version = "3.10"

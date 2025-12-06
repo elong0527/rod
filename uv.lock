@@ -681,6 +681,85 @@ toml = [
 ]
 
 [[package]]
+name = "csrlite"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "polars" },
+    { name = "pydantic" },
+    { name = "pyyaml" },
+    { name = "rtflite" },
+]
+
+[package.optional-dependencies]
+all = [
+    { name = "matplotlib" },
+    { name = "plotly" },
+    { name = "rtflite" },
+]
+dev = [
+    { name = "black" },
+    { name = "isort" },
+    { name = "jupyter" },
+    { name = "jupyter-cache" },
+    { name = "mypy" },
+    { name = "nbformat" },
+    { name = "pyre-check" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+]
+plotting = [
+    { name = "matplotlib" },
+    { name = "plotly" },
+]
+rtf = [
+    { name = "rtflite" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "jupyter" },
+    { name = "jupyter-cache" },
+    { name = "nbclient" },
+    { name = "notebook" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "black", marker = "extra == 'dev'", specifier = ">=22.0.0" },
+    { name = "isort", marker = "extra == 'dev'", specifier = ">=5.0.0" },
+    { name = "jupyter", marker = "extra == 'dev'", specifier = ">=1.1.1" },
+    { name = "jupyter-cache", marker = "extra == 'dev'", specifier = ">=1.0.1" },
+    { name = "matplotlib", marker = "extra == 'all'", specifier = ">=3.5.0" },
+    { name = "matplotlib", marker = "extra == 'plotting'", specifier = ">=3.5.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
+    { name = "nbformat", marker = "extra == 'dev'", specifier = ">=5.10.4" },
+    { name = "plotly", marker = "extra == 'all'", specifier = ">=5.0.0" },
+    { name = "plotly", marker = "extra == 'plotting'", specifier = ">=5.0.0" },
+    { name = "polars", specifier = ">=0.20.0" },
+    { name = "pydantic", specifier = ">=2.0.0" },
+    { name = "pyre-check", marker = "extra == 'dev'", specifier = ">=0.9.18" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.1" },
+    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
+    { name = "pyyaml", specifier = ">=6.0" },
+    { name = "rtflite", specifier = ">=2.1.1" },
+    { name = "rtflite", marker = "extra == 'all'" },
+    { name = "rtflite", marker = "extra == 'rtf'" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
+]
+provides-extras = ["rtf", "plotting", "dev", "all"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "jupyter", specifier = ">=1.1.1" },
+    { name = "jupyter-cache", specifier = ">=1.0.1" },
+    { name = "nbclient", specifier = ">=0.10.2" },
+    { name = "notebook", specifier = ">=7.5.0" },
+]
+
+[[package]]
 name = "cycler"
 version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
@@ -3251,85 +3330,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/7a/fd/7a5ee21fd08ff70d3d33a5781c255cbe779659bd03278feb98b19ee550f4/tinycss2-1.4.0.tar.gz", hash = "sha256:10c0972f6fc0fbee87c3edb76549357415e94548c1ae10ebccdea16fb404a9b7", size = 87085, upload-time = "2024-10-24T14:58:29.895Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e6/34/ebdc18bae6aa14fbee1a08b63c015c72b64868ff7dae68808ab500c492e2/tinycss2-1.4.0-py3-none-any.whl", hash = "sha256:3a49cf47b7675da0b15d0c6e1df8df4ebd96e9394bb905a5775adb0d884c5289", size = 26610, upload-time = "2024-10-24T14:58:28.029Z" },
-]
-
-[[package]]
-name = "tlfyaml"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "polars" },
-    { name = "pydantic" },
-    { name = "pyyaml" },
-    { name = "rtflite" },
-]
-
-[package.optional-dependencies]
-all = [
-    { name = "matplotlib" },
-    { name = "plotly" },
-    { name = "rtflite" },
-]
-dev = [
-    { name = "black" },
-    { name = "isort" },
-    { name = "jupyter" },
-    { name = "jupyter-cache" },
-    { name = "mypy" },
-    { name = "nbformat" },
-    { name = "pyre-check" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
-]
-plotting = [
-    { name = "matplotlib" },
-    { name = "plotly" },
-]
-rtf = [
-    { name = "rtflite" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "jupyter" },
-    { name = "jupyter-cache" },
-    { name = "nbclient" },
-    { name = "notebook" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "black", marker = "extra == 'dev'", specifier = ">=22.0.0" },
-    { name = "isort", marker = "extra == 'dev'", specifier = ">=5.0.0" },
-    { name = "jupyter", marker = "extra == 'dev'", specifier = ">=1.1.1" },
-    { name = "jupyter-cache", marker = "extra == 'dev'", specifier = ">=1.0.1" },
-    { name = "matplotlib", marker = "extra == 'all'", specifier = ">=3.5.0" },
-    { name = "matplotlib", marker = "extra == 'plotting'", specifier = ">=3.5.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
-    { name = "nbformat", marker = "extra == 'dev'", specifier = ">=5.10.4" },
-    { name = "plotly", marker = "extra == 'all'", specifier = ">=5.0.0" },
-    { name = "plotly", marker = "extra == 'plotting'", specifier = ">=5.0.0" },
-    { name = "polars", specifier = ">=0.20.0" },
-    { name = "pydantic", specifier = ">=2.0.0" },
-    { name = "pyre-check", marker = "extra == 'dev'", specifier = ">=0.9.18" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.1" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
-    { name = "pyyaml", specifier = ">=6.0" },
-    { name = "rtflite", specifier = ">=2.1.1" },
-    { name = "rtflite", marker = "extra == 'all'" },
-    { name = "rtflite", marker = "extra == 'rtf'" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
-]
-provides-extras = ["rtf", "plotting", "dev", "all"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "jupyter", specifier = ">=1.1.1" },
-    { name = "jupyter-cache", specifier = ">=1.0.1" },
-    { name = "nbclient", specifier = ">=0.10.2" },
-    { name = "notebook", specifier = ">=7.5.0" },
 ]
 
 [[package]]

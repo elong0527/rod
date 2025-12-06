@@ -50,4 +50,4 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: elong0527/rod
+          slug: elong0527/csrlite

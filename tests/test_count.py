@@ -3,7 +3,7 @@ import unittest
 
 import polars as pl
 
-from tlfyaml.common.count import count_subject, count_subject_with_observation
+from csrlite.common.count import count_subject, count_subject_with_observation
 
 
 class TestCountSubject(unittest.TestCase):

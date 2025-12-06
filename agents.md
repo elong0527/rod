@@ -18,10 +18,10 @@ The core paradigm is specification-first development where YAML files define **w
 
 ### Architecture Components
 
-1. **YamlInheritanceLoader** (`src/tlfyaml/yaml_loader.py`): Resolves template inheritance chain (organization → TA → study) using deep merging with keyword-level granularity
-2. **KeywordRegistry** (`src/tlfyaml/plan.py`): Manages populations, observations, parameters, groups, and data sources as typed dataclasses
-3. **PlanExpander** (`src/tlfyaml/plan.py`): Expands condensed YAML plans into individual analysis specifications via Cartesian products
-4. **StudyPlan** (`src/tlfyaml/plan.py`): Main interface that loads datasets (Polars DataFrames from Parquet), resolves keywords, and expands plans
+1. **YamlInheritanceLoader** (`src/csrlite/yaml_loader.py`): Resolves template inheritance chain (organization → TA → study) using deep merging with keyword-level granularity
+2. **KeywordRegistry** (`src/csrlite/plan.py`): Manages populations, observations, parameters, groups, and data sources as typed dataclasses
+3. **PlanExpander** (`src/csrlite/plan.py`): Expands condensed YAML plans into individual analysis specifications via Cartesian products
+4. **StudyPlan** (`src/csrlite/plan.py`): Main interface that loads datasets (Polars DataFrames from Parquet), resolves keywords, and expands plans
 
 ### Keyword System
 
@@ -59,7 +59,7 @@ uv sync --all-extras --group dev
 pytest
 
 # With coverage
-pytest --cov=src/tlfyaml --cov-report=html
+pytest --cov=src/csrlite --cov-report=html
 
 # Specific test
 pytest tests/test_yaml_loader.py -v
@@ -104,13 +104,13 @@ The `docs/` directory contains a Quarto book with Python code execution:
 - `inheritance.qmd`: Template inheritance system explanation
 - `plan.qmd`: Working example with Python code blocks that load and display study plans
 - Uses Jupyter kernel (python3) for executing Python code in `.qmd` files
-- Code blocks set `sys.path` to include `src/` for importing `tlfyaml`
+- Code blocks set `sys.path` to include `src/` for importing `csrlite`
 
 ## Important Patterns
 
 ### Loading a Study Plan
 ```python
-from tlfyaml import load_plan
+from csrlite import load_plan
 
 study_plan = load_plan('../examples/yaml/plan_xyz123.yaml')
 df = study_plan.get_plan_df()  # Returns Polars DataFrame
@@ -128,7 +128,7 @@ When `organization.yaml` has `parameter: name: any, label: "Any Adverse Event"` 
 
 ## File Conventions
 
-- Python source: `src/tlfyaml/`
+- Python source: `src/csrlite/`
 - YAML examples: `examples/yaml/`
 - Data files: `data/` (Parquet only)
 - Documentation: `docs/` (Quarto .qmd files)

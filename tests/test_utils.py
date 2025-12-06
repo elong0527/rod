@@ -3,7 +3,7 @@ import unittest
 
 import polars as pl
 
-from tlfyaml.common.utils import apply_common_filters
+from csrlite.common.utils import apply_common_filters
 
 
 class TestUtils(unittest.TestCase):

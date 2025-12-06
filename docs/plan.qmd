@@ -12,7 +12,7 @@ sys.path.insert(0, 'src')
 ```{python}
 #| message: false
 import polars as pl
-from tlfyaml import load_plan
+from csrlite import load_plan
 
 pl.Config.set_tbl_rows(-1)
 ```
@@ -24,7 +24,7 @@ Create a minimal visible product (MVP) to enable the A&R plan.
 :::
 
 
-We created two YAML files [link](https://github.com/elong0527/demo-tlf-yaml/tree/main/examples/yaml) for an MVP. We uses Python ([source code](https://github.com/elong0527/demo-tlf-yaml/tree/main/src/tlfyaml)), the same idea can be built in R. 
+We created two YAML files [link](https://github.com/elong0527/demo-tlf-yaml/tree/main/examples/yaml) for an MVP. We uses Python ([source code](https://github.com/elong0527/csrlite/tree/main/src/csrlite)), the same idea can be built in R. 
 
 - `organization.yaml`: organization YAML file.
 - `plan_xyz123.yaml`: study specific YAML file.

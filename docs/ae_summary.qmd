@@ -30,8 +30,8 @@ converter = LibreOfficeConverter()
 ```
 
 ```{python}
-from tlfyaml import load_plan, study_plan_to_ae_summary
-from tlfyaml.ae.ae_summary import ae_summary_ard, ae_summary_df, ae_summary_rtf, ae_summary
+from csrlite import load_plan, study_plan_to_ae_summary
+from csrlite.ae.ae_summary import ae_summary_ard, ae_summary_df, ae_summary_rtf, ae_summary
 ```
 
 ## StudyPlan-Driven Workflow

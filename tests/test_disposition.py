@@ -4,8 +4,8 @@ from pathlib import Path
 
 import polars as pl
 
-from tlfyaml.common.plan import load_plan
-from tlfyaml.disposition.disposition import (
+from csrlite.common.plan import load_plan
+from csrlite.disposition.disposition import (
     disposition,
     disposition_ard,
     disposition_df,
