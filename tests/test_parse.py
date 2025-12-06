@@ -1,7 +1,7 @@
 # pyre-strict
 import unittest
 
-from tlfyaml.common.parse import parse_filter_to_sql, parse_parameter
+from csrlite.common.parse import parse_filter_to_sql, parse_parameter
 
 
 class TestParse(unittest.TestCase):

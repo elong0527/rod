@@ -5,10 +5,10 @@ from unittest.mock import MagicMock, patch
 
 import polars as pl
 
-from tlfyaml.ae.ae_listing import study_plan_to_ae_listing
-from tlfyaml.ae.ae_specific import study_plan_to_ae_specific
-from tlfyaml.ae.ae_summary import study_plan_to_ae_summary
-from tlfyaml.disposition.disposition import study_plan_to_disposition_summary
+from csrlite.ae.ae_listing import study_plan_to_ae_listing
+from csrlite.ae.ae_specific import study_plan_to_ae_specific
+from csrlite.ae.ae_summary import study_plan_to_ae_summary
+from csrlite.disposition.disposition import study_plan_to_disposition_summary
 
 
 class TestOutputPaths(unittest.TestCase):
@@ -51,7 +51,7 @@ class TestOutputPaths(unittest.TestCase):
         self.mock_plan.keywords.populations = {"pop1": mock_pop}
         self.mock_plan.keywords.observations = {"obs1": mock_obs}
 
-    @patch("tlfyaml.ae.ae_listing.ae_listing")
+    @patch("csrlite.ae.ae_listing.ae_listing")
     def test_ae_listing_output_path(self, mock_ae_listing: MagicMock) -> None:
         mock_ae_listing.side_effect = lambda **kwargs: kwargs["output_file"]
 
@@ -74,7 +74,7 @@ class TestOutputPaths(unittest.TestCase):
             Path("custom/output/dir/ae_listing_pop1_obs1_param1.rtf"),
         )
 
-    @patch("tlfyaml.ae.ae_summary.ae_summary")
+    @patch("csrlite.ae.ae_summary.ae_summary")
     def test_ae_summary_output_path(self, mock_ae_summary: MagicMock) -> None:
         mock_ae_summary.side_effect = lambda **kwargs: kwargs["output_file"]
 
@@ -97,7 +97,7 @@ class TestOutputPaths(unittest.TestCase):
             Path("custom/output/dir/ae_summary_pop1_obs1_param1.rtf"),
         )
 
-    @patch("tlfyaml.ae.ae_specific.ae_specific")
+    @patch("csrlite.ae.ae_specific.ae_specific")
     def test_ae_specific_output_path(self, mock_ae_specific: MagicMock) -> None:
         mock_ae_specific.side_effect = lambda **kwargs: kwargs["output_file"]
 
@@ -120,7 +120,7 @@ class TestOutputPaths(unittest.TestCase):
             Path("custom/output/dir/ae_specific_pop1_obs1_param1.rtf"),
         )
 
-    @patch("tlfyaml.disposition.disposition.disposition")
+    @patch("csrlite.disposition.disposition.disposition")
     def test_disposition_output_path(self, mock_disposition: MagicMock) -> None:
         mock_disposition.side_effect = lambda **kwargs: kwargs["output_file"]
 
