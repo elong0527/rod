@@ -29,7 +29,7 @@ def study_plan_to_disposition(
     Generate Disposition Table 1.1 RTF outputs for all analyses defined in StudyPlan.
     """
     # Meta data
-    analysis_type = "disposition_table_1_1"
+    analysis_type = "disposition"
     output_dir = study_plan.output_dir
     footnote = ["Percentages are based on the number of enrolled participants."]
     source = None

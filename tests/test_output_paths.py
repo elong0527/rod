@@ -126,7 +126,7 @@ class TestOutputPaths(unittest.TestCase):
 
         self.mock_plan.get_plan_df.return_value = pl.DataFrame(
             {
-                "analysis": ["disposition_table_1_1"],
+                "analysis": ["disposition"],
                 "population": ["pop1"],
                 "observation": ["obs1"],
                 "parameter": ["param1"],
@@ -140,5 +140,5 @@ class TestOutputPaths(unittest.TestCase):
         self.assertEqual(len(output_files), 1)
         self.assertEqual(
             Path(output_files[0]),
-            Path("custom/output/dir/disposition_table_1_1_pop1_grp1.rtf"),
+            Path("custom/output/dir/disposition_pop1_grp1.rtf"),
         )

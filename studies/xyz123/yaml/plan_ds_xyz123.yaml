@@ -51,7 +51,7 @@ observation:
 # Analysis Plans
 plans:
   # DS - Single combination
-  - analysis: "disposition_table_1_1"
+  - analysis: "disposition"
     title: "Disposition of Participants"
     population: "itt"
     observation: "disposition"
