@@ -25,10 +25,7 @@ from .common.plan import (
     # Core classes
     load_plan,
 )
-from .disposition.disposition import (
-    disposition,
-    study_plan_to_disposition,
-)
+from .disposition.disposition import study_plan_to_disposition_summary
 
 # Main exports for common usage
 __all__ = [
@@ -43,8 +40,7 @@ __all__ = [
     "study_plan_to_ae_specific",
     "study_plan_to_ae_listing",
     # Disposition analysis
-    "disposition",
-    "study_plan_to_disposition",
+    "study_plan_to_disposition_summary",
     # Count functions
     "count_subject",
     "count_subject_with_observation",

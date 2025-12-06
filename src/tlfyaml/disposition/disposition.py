@@ -7,7 +7,7 @@ This module provides a pipeline for Disposition Table 1.1 summary analysis:
 - disposition_df: Transform ARD to display format
 - disposition_rtf: Generate formatted RTF output
 - disposition: Complete pipeline wrapper
-- study_plan_to_disposition: Batch generation from StudyPlan
+- study_plan_to_disposition_summary: Batch generation from StudyPlan
 """
 
 from pathlib import Path
@@ -22,15 +22,15 @@ from ..common.plan import StudyPlan
 from ..common.utils import apply_common_filters
 
 
-def study_plan_to_disposition(
+def study_plan_to_disposition_summary(
     study_plan: StudyPlan,
 ) -> list[str]:
     """
     Generate Disposition Table 1.1 RTF outputs for all analyses defined in StudyPlan.
     """
     # Meta data
-    analysis_type = "disposition_table_1_1"
-    output_dir = "studies/xyz123/rtf"
+    analysis_type = "disposition_summary"
+    output_dir = study_plan.output_dir
     footnote = ["Percentages are based on the number of enrolled participants."]
     source = None
 

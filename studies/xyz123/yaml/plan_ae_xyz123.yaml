@@ -6,6 +6,7 @@ study:
   title: "Phase III Study of Drug X vs Placebo"
   template:
     - ../../yaml/organization.yaml
+  output: "studies/xyz123/rtf"
 
 # Analysis Plans - Using metalite-style condensed format
 plans:

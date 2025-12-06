@@ -10,7 +10,7 @@ from tlfyaml.disposition.disposition import (
     disposition_ard,
     disposition_df,
     disposition_rtf,
-    study_plan_to_disposition,
+    study_plan_to_disposition_summary,
 )
 
 
@@ -324,13 +324,13 @@ class TestStudyPlanToDisposition(unittest.TestCase):
             for file in self.output_dir.glob("disposition_*.rtf"):
                 file.unlink()
 
-    def test_study_plan_to_disposition(self) -> None:
+    def test_study_plan_to_disposition_summary(self) -> None:
         """Test generating disposition tables from StudyPlan."""
         # Load the study plan
         study_plan = load_plan("studies/xyz123/yaml/plan_ds_xyz123.yaml")
 
         # Generate disposition tables
-        rtf_files = study_plan_to_disposition(study_plan)
+        rtf_files = study_plan_to_disposition_summary(study_plan)
 
         # Check that files were generated
         self.assertIsInstance(rtf_files, list)

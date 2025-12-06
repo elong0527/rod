@@ -6,6 +6,7 @@ study:
   title: "Phase III Study of Drug X vs Placebo"
   template:
     - ../../yaml/organization.yaml
+  output: "studies/xyz123/rtf"
 
 data:
   - name: adsl 
@@ -50,7 +51,7 @@ observation:
 # Analysis Plans
 plans:
   # DS - Single combination
-  - analysis: "disposition_table_1_1"
+  - analysis: "disposition_summary"
     title: "Disposition of Participants"
     population: "itt"
     observation: "disposition"
