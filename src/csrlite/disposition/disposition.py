@@ -154,6 +154,56 @@ def disposition(
     return output_file
 
 
+def _validate_disposition_data(
+    df: pl.DataFrame, ds_var: str, reason_var: str
+) -> None:
+    """
+    Validate disposition data integrity.
+    
+    Rules:
+    1. ds_var must be {Completed, Ongoing, Discontinued} and non-null.
+    2. If ds_var is Completed/Ongoing, reason_var must be the same as ds_var or null.
+    3. If ds_var is Discontinued, reason_var must be non-null and not Completed/Ongoing.
+    """
+    # Rule 1: Valid Statuses
+    valid_statuses = ["Completed", "Ongoing", "Discontinued"]
+    if df[ds_var].is_null().any():
+        raise ValueError(f"Found null values in disposition status column '{ds_var}'")
+    
+    invalid_status = df.filter(~pl.col(ds_var).is_in(valid_statuses))
+    if not invalid_status.is_empty():
+        bad_values = invalid_status[ds_var].unique().to_list()
+        raise ValueError(
+            f"Invalid disposition statuses found: {bad_values}. Must be one of {valid_statuses}"
+        )
+
+    # Rule 2: Completed/Ongoing implies Reason is Null OR equal to Status
+    inconsistent_completed = df.filter(
+        (pl.col(ds_var).is_in(["Completed", "Ongoing"])) & 
+        (~pl.col(reason_var).is_null()) &
+        (pl.col(reason_var) != pl.col(ds_var))
+    )
+    if not inconsistent_completed.is_empty():
+        raise ValueError(
+            f"Found subjects with status 'Completed' or 'Ongoing' with mismatched "
+            f"discontinuation reason in '{reason_var}'. Reason must be Null or match Status."
+        )
+
+    # Rule 3: Discontinued implies Reason is NOT Null AND NOT {Completed, Ongoing}
+    invalid_discontinued = df.filter(
+        (pl.col(ds_var) == "Discontinued") &
+        (
+            (pl.col(reason_var).is_null()) | 
+            (pl.col(reason_var).is_in(["Completed", "Ongoing"]))
+        )
+    )
+    if not invalid_discontinued.is_empty():
+        raise ValueError(
+            f"Found subjects with status 'Discontinued' but missing or invalid "
+            f"discontinuation reason in '{reason_var}'"
+        )
+
+
 def disposition_ard(
     population: pl.DataFrame,
     population_filter: str | None,
@@ -163,16 +213,18 @@ def disposition_ard(
     dist_reason_term: tuple[str, str],
     total: bool,
     missing_group: str,
+    pop_var_name: str = "Enrolled",
 ) -> pl.DataFrame:
     """
     Generate ARD for Summary Table.
     """
-
-    pop_var_name = "Enrolled"
     # Unpack variables
     ds_var_name, _ = ds_term
     dist_reason_var_name, _ = dist_reason_term
     id_var_name, _ = id
+
+    # Validate Data
+    _validate_disposition_data(population, ds_var_name, dist_reason_var_name)
 
     # Apply common filters
     population_filtered, _ = apply_common_filters(
@@ -187,6 +239,7 @@ def disposition_ard(
     else:
         # Create dummy group for overall analysis
         group_var_name = "Overall"
+        total = False
         population_filtered = population_filtered.with_columns(
             pl.lit("Overall").alias(group_var_name)
         )
