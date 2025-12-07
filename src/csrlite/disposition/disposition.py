@@ -15,10 +15,10 @@ from pathlib import Path
 import polars as pl
 from rtflite import RTFDocument
 
-from ..ae.ae_utils import create_ae_rtf_table
 from ..common.count import count_subject, count_subject_with_observation
 from ..common.parse import StudyPlanParser
 from ..common.plan import StudyPlan
+from ..common.rtf import create_rtf_table_n_pct
 from ..common.utils import apply_common_filters
 
 
@@ -154,6 +154,51 @@ def disposition(
     return output_file
 
 
+def _validate_disposition_data(df: pl.DataFrame, ds_var: str, reason_var: str) -> None:
+    """
+    Validate disposition data integrity.
+
+    Rules:
+    1. ds_var must be {Completed, Ongoing, Discontinued} and non-null.
+    2. If ds_var is Completed/Ongoing, reason_var must be the same as ds_var or null.
+    3. If ds_var is Discontinued, reason_var must be non-null and not Completed/Ongoing.
+    """
+    # Rule 1: Valid Statuses
+    valid_statuses = ["Completed", "Ongoing", "Discontinued"]
+    if df[ds_var].is_null().any():
+        raise ValueError(f"Found null values in disposition status column '{ds_var}'")
+
+    invalid_status = df.filter(~pl.col(ds_var).is_in(valid_statuses))
+    if not invalid_status.is_empty():
+        bad_values = invalid_status[ds_var].unique().to_list()
+        raise ValueError(
+            f"Invalid disposition statuses found: {bad_values}. Must be one of {valid_statuses}"
+        )
+
+    # Rule 2: Completed/Ongoing implies Reason is Null OR equal to Status
+    inconsistent_completed = df.filter(
+        (pl.col(ds_var).is_in(["Completed", "Ongoing"]))
+        & (~pl.col(reason_var).is_null())
+        & (pl.col(reason_var) != pl.col(ds_var))
+    )
+    if not inconsistent_completed.is_empty():
+        raise ValueError(
+            f"Found subjects with status 'Completed' or 'Ongoing' with mismatched "
+            f"discontinuation reason in '{reason_var}'. Reason must be Null or match Status."
+        )
+
+    # Rule 3: Discontinued implies Reason is NOT Null AND NOT {Completed, Ongoing}
+    invalid_discontinued = df.filter(
+        (pl.col(ds_var) == "Discontinued")
+        & ((pl.col(reason_var).is_null()) | (pl.col(reason_var).is_in(["Completed", "Ongoing"])))
+    )
+    if not invalid_discontinued.is_empty():
+        raise ValueError(
+            f"Found subjects with status 'Discontinued' but missing or invalid "
+            f"discontinuation reason in '{reason_var}'"
+        )
+
+
 def disposition_ard(
     population: pl.DataFrame,
     population_filter: str | None,
@@ -163,16 +208,18 @@ def disposition_ard(
     dist_reason_term: tuple[str, str],
     total: bool,
     missing_group: str,
+    pop_var_name: str = "Enrolled",
 ) -> pl.DataFrame:
     """
     Generate ARD for Summary Table.
     """
-
-    pop_var_name = "Enrolled"
     # Unpack variables
     ds_var_name, _ = ds_term
     dist_reason_var_name, _ = dist_reason_term
     id_var_name, _ = id
+
+    # Validate Data
+    _validate_disposition_data(population, ds_var_name, dist_reason_var_name)
 
     # Apply common filters
     population_filtered, _ = apply_common_filters(
@@ -187,6 +234,7 @@ def disposition_ard(
     else:
         # Create dummy group for overall analysis
         group_var_name = "Overall"
+        total = False
         population_filtered = population_filtered.with_columns(
             pl.lit("Overall").alias(group_var_name)
         )
@@ -206,60 +254,35 @@ def disposition_ard(
         pl.col("n_subj_pop").cast(pl.String).alias("__value__"),
     )
 
-    # Disposition Status Counts (Completed, Ongoing, Discontinued, etc.)
-    # We count subjects by their status in ds_var_name
-    n_status_counts = count_subject_with_observation(
+    # Hierarchical Counts for Status and Reason
+    # Level 1: Status (Completed, Ongoing, Discontinued)
+    # Level 2: Status + Reason (Only relevant for Discontinued)
+    n_dict = count_subject_with_observation(
         population=population_filtered,
         observation=population_filtered,
         id=id_var_name,
         group=group_var_name,
-        variable=ds_var_name,
+        variable=[ds_var_name, dist_reason_var_name],
         total=total,
         missing_group=missing_group,
     )
 
-    n_status = n_status_counts.select(
-        pl.col(ds_var_name).cast(pl.String).alias("__index__"),
+    # Filter and format
+    # Identify rows:
+    # 1. Status rows: Where reason is "__all__"
+    # 2. Reason rows: Where reason is specific value (indented)
+    n_dict = n_dict.unique([group_var_name, ds_var_name, dist_reason_var_name, "__id__"])
+
+    # Filter out redundant nested rows (e.g., "Completed" under "Completed")
+    n_dict = n_dict.filter(pl.col(dist_reason_var_name) != pl.col(ds_var_name))
+
+    n_final = n_dict.sort("__id__").select(
+        pl.col("__variable__").alias("__index__"),
         pl.col(group_var_name).cast(pl.String).alias("__group__"),
         pl.col("n_pct_subj_fmt").cast(pl.String).alias("__value__"),
     )
 
-    # Discontinued Subjects by Reason
-    # We filter where ds_var_name == "Discontinued"
-    filtered_for_reason = population_filtered.filter(pl.col(ds_var_name) == "Discontinued")
-
-    n_dist_reason_counts = count_subject_with_observation(
-        population=population_filtered,
-        observation=filtered_for_reason,
-        id=id_var_name,
-        group=group_var_name,
-        variable=dist_reason_var_name,
-        total=total,
-        missing_group=missing_group,
-    )
-
-    n_dist_reason = n_dist_reason_counts.select(
-        (pl.lit("    ") + pl.col(dist_reason_var_name).cast(pl.String)).alias("__index__"),
-        pl.col(group_var_name).cast(pl.String).alias("__group__"),
-        pl.col("n_pct_subj_fmt").cast(pl.String).alias("__value__"),
-    ).sort("__index__")
-
-    # Missing Subjects
-    n_missing_counts = count_subject(
-        population=filtered_for_reason.filter(pl.col(dist_reason_var_name).is_null()),
-        id=id_var_name,
-        group=group_var_name,
-        total=total,
-        missing_group=missing_group,
-    )
-
-    n_missing = n_missing_counts.select(
-        pl.lit("Missing").alias("__index__"),
-        pl.col(group_var_name).cast(pl.String).alias("__group__"),
-        pl.col("n_subj_pop").cast(pl.String).alias("__value__"),
-    )
-
-    return pl.concat([n_pop, n_status, n_dist_reason, n_missing])
+    return pl.concat([n_pop, n_final])
 
 
 def disposition_df(ard: pl.DataFrame) -> pl.DataFrame:
@@ -290,7 +313,7 @@ def disposition_rtf(
     # Columns: Disposition Status, Group 1, Group 2, ... Total
 
     n_cols = len(df.columns)
-    col_header_1 = list(df.columns)
+    col_header_1 = [""] + list(df.columns[1:])
     col_header_2 = [""] + ["n (%)"] * (n_cols - 1)
 
     if col_rel_width is None:
@@ -298,7 +321,7 @@ def disposition_rtf(
     else:
         col_widths = col_rel_width
 
-    return create_ae_rtf_table(
+    return create_rtf_table_n_pct(
         df=df,
         col_header_1=col_header_1,
         col_header_2=col_header_2,

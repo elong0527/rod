@@ -13,6 +13,7 @@ plans:
   # Disposition Summary
   - analysis: "disposition_summary"
     population: "enrolled"
+    group: "trt01a"
 
   # Demographics - Single combination
   - analysis: "demographics"
