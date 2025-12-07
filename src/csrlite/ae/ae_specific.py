@@ -132,7 +132,7 @@ def ae_specific_ard(
     )
 
     # Extract 'with' counts
-    n_with = event_counts.filter(pl.col("__has_event__")).select(
+    n_with = event_counts.filter(pl.col("__has_event__") == "true").select(
         [
             pl.lit(n_with_label).alias("__index__"),
             pl.col(group_var_name).cast(pl.String).alias("__group__"),
@@ -141,7 +141,7 @@ def ae_specific_ard(
     )
 
     # Extract 'without' counts
-    n_without = event_counts.filter(~pl.col("__has_event__")).select(
+    n_without = event_counts.filter(pl.col("__has_event__") == "false").select(
         [
             pl.lit(n_without_label).alias("__index__"),
             pl.col(group_var_name).cast(pl.String).alias("__group__"),
