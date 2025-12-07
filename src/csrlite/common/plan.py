@@ -6,17 +6,19 @@ using YAML plans with template inheritance and keyword resolution.
 """
 
 import itertools
-from dataclasses import dataclass, field, fields
+import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, cast
 
 import polars as pl
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 from .yaml_loader import YamlInheritanceLoader
 
+logger = logging.getLogger(__name__)
 
-@dataclass
-class Keyword:
+
+class Keyword(BaseModel):
     """Base keyword definition."""
 
     name: str
@@ -24,54 +26,58 @@ class Keyword:
     description: Optional[str] = None
 
 
-@dataclass
 class Population(Keyword):
     """Population definition with filter."""
 
     filter: str = ""
 
 
-@dataclass
 class Observation(Keyword):
     """Observation/timepoint definition with filter."""
 
     filter: str = ""
 
 
-@dataclass
 class Parameter(Keyword):
-    """Parameter definition with filter.
-
-    The terms field supports dynamic title generation:
-    - terms.before: "serious" → "Serious Adverse Events"
-    - terms.after: "resulting in death" → "Adverse Events Resulting in Death"
-    """
+    """Parameter definition with filter."""
 
     filter: str = ""
     terms: Optional[Dict[str, str]] = None
-    indent: int = 0  # Indentation level for hierarchical display
+    indent: int = 0
 
 
-@dataclass
 class Group(Keyword):
     """Treatment group definition."""
 
     variable: str = ""
-    level: List[str] = field(default_factory=list)
-    group_label: List[str] = field(default_factory=list)
+    level: List[str] = Field(default_factory=list)
+    group_label: List[str] = Field(default_factory=list)
+    
+    # Allow label to be excluded if it conflicts or handled manually
+    
+    @field_validator("group_label", mode="before")
+    @classmethod
+    def set_group_label(cls, v: Any, info: Any) -> Any:
+        # If group_label is missing, fallback to 'label' field if present in input data
+        # Note: Pydantic V2 validation context doesn't easily give access to other fields input
+        # unless using model_validator. But here we can rely on standard defaulting or
+        # fix it at the registry level like before.
+        # Actually, let's keep it simple: if not provided, it's empty.
+        # The original code did: if "group_label" not in item_data: item_data["group_label"] = item_data.get("label", [])
+        return v or []
 
 
-@dataclass
-class DataSource:
+class DataSource(BaseModel):
     """Data source definition."""
 
     name: str
     path: str
-    dataframe: Optional[pl.DataFrame] = None
+    dataframe: Optional[pl.DataFrame] = Field(default=None, exclude=True)
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
 
-@dataclass
-class AnalysisPlan:
+class AnalysisPlan(BaseModel):
     """Individual analysis plan specification."""
 
     analysis: str
@@ -91,37 +97,48 @@ class AnalysisPlan:
         return "_".join(parts)
 
 
-class KeywordRegistry:
+class KeywordRegistry(BaseModel):
     """Registry for managing keywords."""
-
-    def __init__(self) -> None:
-        self.populations: Dict[str, Population] = {}
-        self.observations: Dict[str, Observation] = {}
-        self.parameters: Dict[str, Parameter] = {}
-        self.groups: Dict[str, Group] = {}
-        self.data_sources: Dict[str, DataSource] = {}
+    
+    populations: Dict[str, Population] = Field(default_factory=dict)
+    observations: Dict[str, Observation] = Field(default_factory=dict)
+    parameters: Dict[str, Parameter] = Field(default_factory=dict)
+    groups: Dict[str, Group] = Field(default_factory=dict)
+    data_sources: Dict[str, DataSource] = Field(default_factory=dict)
 
     def load_from_dict(self, data: Dict[str, Any]) -> None:
         """Load keywords from a dictionary."""
-        self._load_keyword_type(data, "population", Population, self.populations)
-        self._load_keyword_type(data, "observation", Observation, self.observations)
-        self._load_keyword_type(data, "parameter", Parameter, self.parameters)
-        self._load_keyword_type(data, "group", Group, self.groups)
-        self._load_keyword_type(data, "data", DataSource, self.data_sources)
-
-    def _load_keyword_type(
-        self, data: Dict[str, Any], key: str, keyword_class: Any, target_dict: Dict[str, Any]
-    ) -> None:
-        """Generic method to load a type of keyword."""
-        for item_data in data.get(key, []):
-            if keyword_class == Group and "group_label" not in item_data:
-                item_data["group_label"] = item_data.get("label", [])
-
-            expected_fields = {f.name for f in fields(keyword_class) if f.init}
-            filtered_data = {k: v for k, v in item_data.items() if k in expected_fields}
-
-            instance = keyword_class(**filtered_data)
-            target_dict[instance.name] = instance
+        # We manually load so we can handle the dict-to-list-of-models transformation
+        # and the specific logic for defaults.
+        
+        for item in data.get("population", []):
+            p = Population(**item)
+            self.populations[p.name] = p
+            
+        for item in data.get("observation", []):
+            o = Observation(**item)
+            self.observations[o.name] = o
+            
+        for item in data.get("parameter", []):
+            p = Parameter(**item)
+            self.parameters[p.name] = p
+            
+        for item in data.get("group", []):
+            # Special handling for Group where 'label' might be a list (for group_label)
+            # but Keyword.label expects a string.
+            if "label" in item and isinstance(item["label"], list):
+                if "group_label" not in item:
+                    item["group_label"] = item["label"]
+                # Remove label from item to avoid validation error on Keyword.label
+                # or set it to a joined string if a label is really needed
+                del item["label"]
+            
+            g = Group(**item)
+            self.groups[g.name] = g
+            
+        for item in data.get("data", []):
+            d = DataSource(**item)
+            self.data_sources[d.name] = d
 
     def get_population(self, name: str) -> Optional[Population]:
         return self.populations.get(name)
@@ -228,10 +245,10 @@ class StudyPlan:
                 df = pl.read_parquet(path)
                 self.datasets[name] = df
                 data_source.dataframe = df
-                print(f"Successfully loaded dataset '{name}' from '{path}'")
+                logger.info(f"Successfully loaded dataset '{name}' from '{path}'")
             except Exception as e:
-                print(
-                    f"Warning: Could not load dataset '{name}' from '{data_source.path}'. "
+                logger.warning(
+                    f"Could not load dataset '{name}' from '{data_source.path}'. "
                     f"Reason: {e}"
                 )
 
@@ -306,31 +323,25 @@ class StudyPlan:
 
     def print(self) -> None:
         """Print comprehensive study plan information using Polars DataFrames."""
-        print("ADaM Metadata:")
+        logger.info("ADaM Metadata:")
 
         if (df := self.get_dataset_df()) is not None:
-            print("\nData Sources:")
-            print(df)
+            logger.info(f"\nData Sources:\n{df}")
 
         if (df := self.get_population_df()) is not None:
-            print("\nAnalysis Population Type:")
-            print(df)
+            logger.info(f"\nAnalysis Population Type:\n{df}")
 
         if (df := self.get_observation_df()) is not None:
-            print("\nAnalysis Observation Type:")
-            print(df)
+            logger.info(f"\nAnalysis Observation Type:\n{df}")
 
         if (df := self.get_parameter_df()) is not None:
-            print("\nAnalysis Parameter Type:")
-            print(df)
+            logger.info(f"\nAnalysis Parameter Type:\n{df}")
 
         if (df := self.get_group_df()) is not None:
-            print("\nAnalysis Groups:")
-            print(df)
+            logger.info(f"\nAnalysis Groups:\n{df}")
 
         if (df := self.get_plan_df()) is not None:
-            print("\nAnalysis Plans:")
-            print(df)
+            logger.info(f"\nAnalysis Plans:\n{df}")
 
     def __str__(self) -> str:
         study_name = self.study_data.get("study", Dict[str, Any]()).get("name", "Unknown")

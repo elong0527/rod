@@ -1,3 +1,16 @@
+import logging
+import sys
+
+from .common.config import config
+
+# Configure logging
+logging.basicConfig(
+    level=config.logging_level,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    stream=sys.stdout,
+)
+logger = logging.getLogger("csrlite")
+
 from .ae.ae_listing import (
     # AE listing functions
     ae_listing,
