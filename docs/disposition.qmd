@@ -50,7 +50,7 @@ for file in output_files:
 
 ### Disposition Summary
 
-<embed src="pdf/disposition_summary.pdf" style="width:100%; height:600px" type="application/pdf">
+<embed src="pdf/disposition_summary_enrolled.pdf" style="width:100%; height:600px" type="application/pdf">
 
 ## Complete Pipeline
 

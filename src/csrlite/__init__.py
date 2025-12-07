@@ -1,3 +1,6 @@
+import logging
+import sys
+
 from .ae.ae_listing import (
     # AE listing functions
     ae_listing,
@@ -13,6 +16,7 @@ from .ae.ae_summary import (
     ae_summary,
     study_plan_to_ae_summary,
 )
+from .common.config import config
 from .common.count import (
     count_subject,
     count_subject_with_observation,
@@ -26,6 +30,14 @@ from .common.plan import (
     load_plan,
 )
 from .disposition.disposition import study_plan_to_disposition_summary
+
+# Configure logging
+logging.basicConfig(
+    level=config.logging_level,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    stream=sys.stdout,
+)
+logger = logging.getLogger("csrlite")
 
 # Main exports for common usage
 __all__ = [

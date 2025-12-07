@@ -117,7 +117,9 @@ def ae_specific_ard(
 
     # Get population with event indicator
     pop_with_indicator = population_filtered.with_columns(
-        pl.col(id_var_name).is_in(subjects_with_events[id_var_name]).alias("__has_event__")
+        pl.col(id_var_name)
+        .is_in(subjects_with_events[id_var_name].to_list())
+        .alias("__has_event__")
     )
 
     # Count subjects with and without events using count_subject_with_observation
