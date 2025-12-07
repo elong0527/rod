@@ -15,10 +15,12 @@ from pathlib import Path
 import polars as pl
 from rtflite import RTFDocument
 
-from ..ae.ae_utils import create_ae_rtf_table
+
 from ..common.count import count_subject, count_subject_with_observation
 from ..common.parse import StudyPlanParser
 from ..common.plan import StudyPlan
+
+from ..common.rtf import create_rtf_table_n_pct
 from ..common.utils import apply_common_filters
 
 
@@ -154,12 +156,10 @@ def disposition(
     return output_file
 
 
-def _validate_disposition_data(
-    df: pl.DataFrame, ds_var: str, reason_var: str
-) -> None:
+def _validate_disposition_data(df: pl.DataFrame, ds_var: str, reason_var: str) -> None:
     """
     Validate disposition data integrity.
-    
+
     Rules:
     1. ds_var must be {Completed, Ongoing, Discontinued} and non-null.
     2. If ds_var is Completed/Ongoing, reason_var must be the same as ds_var or null.
@@ -169,7 +169,7 @@ def _validate_disposition_data(
     valid_statuses = ["Completed", "Ongoing", "Discontinued"]
     if df[ds_var].is_null().any():
         raise ValueError(f"Found null values in disposition status column '{ds_var}'")
-    
+
     invalid_status = df.filter(~pl.col(ds_var).is_in(valid_statuses))
     if not invalid_status.is_empty():
         bad_values = invalid_status[ds_var].unique().to_list()
@@ -179,9 +179,9 @@ def _validate_disposition_data(
 
     # Rule 2: Completed/Ongoing implies Reason is Null OR equal to Status
     inconsistent_completed = df.filter(
-        (pl.col(ds_var).is_in(["Completed", "Ongoing"])) & 
-        (~pl.col(reason_var).is_null()) &
-        (pl.col(reason_var) != pl.col(ds_var))
+        (pl.col(ds_var).is_in(["Completed", "Ongoing"]))
+        & (~pl.col(reason_var).is_null())
+        & (pl.col(reason_var) != pl.col(ds_var))
     )
     if not inconsistent_completed.is_empty():
         raise ValueError(
@@ -191,11 +191,8 @@ def _validate_disposition_data(
 
     # Rule 3: Discontinued implies Reason is NOT Null AND NOT {Completed, Ongoing}
     invalid_discontinued = df.filter(
-        (pl.col(ds_var) == "Discontinued") &
-        (
-            (pl.col(reason_var).is_null()) | 
-            (pl.col(reason_var).is_in(["Completed", "Ongoing"]))
-        )
+        (pl.col(ds_var) == "Discontinued")
+        & ((pl.col(reason_var).is_null()) | (pl.col(reason_var).is_in(["Completed", "Ongoing"])))
     )
     if not invalid_discontinued.is_empty():
         raise ValueError(
@@ -351,7 +348,7 @@ def disposition_rtf(
     else:
         col_widths = col_rel_width
 
-    return create_ae_rtf_table(
+    return create_rtf_table_n_pct(
         df=df,
         col_header_1=col_header_1,
         col_header_2=col_header_2,

@@ -21,8 +21,9 @@ from rtflite import RTFDocument
 from ..common.count import count_subject, count_subject_with_observation
 from ..common.parse import StudyPlanParser
 from ..common.plan import StudyPlan
+
+from ..common.rtf import create_rtf_table_n_pct
 from ..common.utils import apply_common_filters
-from .ae_utils import create_ae_rtf_table
 
 
 def study_plan_to_ae_summary(
@@ -390,7 +391,7 @@ def ae_summary_rtf(
     else:
         col_widths = col_rel_width
 
-    return create_ae_rtf_table(
+    return create_rtf_table_n_pct(
         df=df_rtf,
         col_header_1=col_header_1,
         col_header_2=col_header_2,

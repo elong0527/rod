@@ -66,7 +66,7 @@ class TestDispositionArd(unittest.TestCase):
                 None,  # 06
                 None,  # 07
                 "Adverse Event",  # 08 - Was None, now explicitly Adverse Event to pass validation
-            ]
+            ],
         )
         self.population_data = self.population_data.with_columns(
             discontinued_reason.alias("DCREASCD")
@@ -111,12 +111,12 @@ class TestDispositionArd(unittest.TestCase):
         """Test that invalid data raises validation errors."""
         # 1. Invalid Status
         invalid_status_data = self.population_data.clone().with_columns(
-             pl.when(pl.col("USUBJID") == "01")
-             .then(pl.lit("Unknown"))
-             .otherwise(pl.col("EOSSTT"))
-             .alias("EOSSTT")
+            pl.when(pl.col("USUBJID") == "01")
+            .then(pl.lit("Unknown"))
+            .otherwise(pl.col("EOSSTT"))
+            .alias("EOSSTT")
         )
-        
+
         with self.assertRaisesRegex(ValueError, "Invalid disposition statuses"):
             disposition_ard(
                 population=invalid_status_data,
@@ -131,12 +131,12 @@ class TestDispositionArd(unittest.TestCase):
 
         # 2. Inconsistent Data (Completed with Mismatched Reason)
         inconsistent_data = self.population_data.clone().with_columns(
-             pl.when(pl.col("USUBJID") == "01") # Subject 01 is Completed
-             .then(pl.lit("Adverse Event")) # Mismatched Reason
-             .otherwise(pl.col("DCREASCD"))
-             .alias("DCREASCD")
+            pl.when(pl.col("USUBJID") == "01")  # Subject 01 is Completed
+            .then(pl.lit("Adverse Event"))  # Mismatched Reason
+            .otherwise(pl.col("DCREASCD"))
+            .alias("DCREASCD")
         )
-        
+
         with self.assertRaisesRegex(ValueError, "mismatched discontinuation reason"):
             disposition_ard(
                 population=inconsistent_data,
@@ -148,13 +148,13 @@ class TestDispositionArd(unittest.TestCase):
                 total=True,
                 missing_group="error",
             )
-            
+
         # 3. Valid Redundancy (Completed with Reason="Completed" is ALLOWED)
         redundant_data = self.population_data.clone().with_columns(
-             pl.when(pl.col("USUBJID") == "01") # Subject 01 is Completed
-             .then(pl.lit("Completed")) # Matches Status
-             .otherwise(pl.col("DCREASCD"))
-             .alias("DCREASCD")
+            pl.when(pl.col("USUBJID") == "01")  # Subject 01 is Completed
+            .then(pl.lit("Completed"))  # Matches Status
+            .otherwise(pl.col("DCREASCD"))
+            .alias("DCREASCD")
         )
         # Should NOT raise error
         disposition_ard(
@@ -170,13 +170,13 @@ class TestDispositionArd(unittest.TestCase):
 
         # 4. Invalid Discontinued (Discontinued with Null Reason)
         # 4. Invalid Discontinued (Discontinued with Null Reason)
-        
+
         # Test Case for Invalid Discontinued (Null)
         invalid_disc_null = self.population_data.clone().with_columns(
-             pl.when(pl.col("USUBJID") == "03") # Subject 03 is Discontinued/Withdrawn
-             .then(None) # Make Reason Null
-             .otherwise(pl.col("DCREASCD"))
-             .alias("DCREASCD")
+            pl.when(pl.col("USUBJID") == "03")  # Subject 03 is Discontinued/Withdrawn
+            .then(None)  # Make Reason Null
+            .otherwise(pl.col("DCREASCD"))
+            .alias("DCREASCD")
         )
         with self.assertRaisesRegex(ValueError, "missing or invalid discontinuation reason"):
             disposition_ard(
@@ -189,13 +189,13 @@ class TestDispositionArd(unittest.TestCase):
                 total=True,
                 missing_group="error",
             )
-            
+
         # 5. Invalid Discontinued (Discontinued with Reason="Completed")
         invalid_disc_comp = self.population_data.clone().with_columns(
-             pl.when(pl.col("USUBJID") == "03") # Subject 03 is Discontinued
-             .then(pl.lit("Completed")) # Invalid Reason
-             .otherwise(pl.col("DCREASCD"))
-             .alias("DCREASCD")
+            pl.when(pl.col("USUBJID") == "03")  # Subject 03 is Discontinued
+            .then(pl.lit("Completed"))  # Invalid Reason
+            .otherwise(pl.col("DCREASCD"))
+            .alias("DCREASCD")
         )
         with self.assertRaisesRegex(ValueError, "missing or invalid discontinuation reason"):
             disposition_ard(
@@ -208,7 +208,6 @@ class TestDispositionArd(unittest.TestCase):
                 total=True,
                 missing_group="error",
             )
-
 
     def test_disposition_ard_no_group(self) -> None:
         """Test ARD generation without group variable."""
@@ -439,10 +438,10 @@ class TestStudyPlanToDisposition(unittest.TestCase):
         """Test generating disposition tables from StudyPlan."""
         # Load the study plan
         study_plan = load_plan("studies/xyz123/yaml/plan_ae_xyz123.yaml")
-        
-        original_get_datasets: Callable[
-            [StudyPlanParser, str], tuple[pl.DataFrame]
-        ] = StudyPlanParser.get_datasets
+
+        original_get_datasets: Callable[[StudyPlanParser, str], tuple[pl.DataFrame]] = (
+            StudyPlanParser.get_datasets
+        )
 
         # Generate disposition tables
         with unittest.mock.patch(
