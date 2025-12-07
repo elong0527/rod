@@ -87,6 +87,11 @@ isort src/ tests/
 
 # Type checking
 mypy src/
+pyre
+
+# Linting
+ruff check src/ tests/
+ruff format src/ tests/
 ```
 
 ## Data Architecture
@@ -118,6 +123,17 @@ df = study_plan.get_plan_df()  # Returns Polars DataFrame
 
 ### Field-Level Inheritance Example
 When `organization.yaml` has `parameter: name: any, label: "Any Adverse Event"` and study plan has `parameter: name: any, filter: "adae:trtemfl == 'Y'"`, the merged result contains both `label` from template and `filter` from study.
+
+### RTF Generation Pattern
+All RTF tables should use the standardized `create_rtf_table_n_pct` function from `csrlite.common.rtf`.
+- **Logic Separation**: Data transformation (ARD generation) happens in `*_ard` functions. Display formatting happens in `*_df` functions. RTF rendering happens in `*_rtf` functions.
+- **Header Formatting**: Population counts (Big N) should be added to column headers in the `*_df` function, not the `*_rtf` function.
+
+### Hierarchical Data Processing
+Use `count_subject_with_observation` from `csrlite.common.count`.
+- Supports hierarchical counting (e.g., SOC -> PT) via list of variables.
+- Output includes `__id__` (sort order) and `__variable__` (indented labels).
+- Use `__all__` for summary rows and `"Missing"` for null value display.
 
 ### AI Integration Philosophy
 - AI generates YAML from natural language requirements
