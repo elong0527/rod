@@ -18,6 +18,7 @@ prune docs
 prune data
 prune studies
 prune .github
+prune scripts
 exclude .gitignore
 exclude .pyre_configuration
 exclude _quarto.yml

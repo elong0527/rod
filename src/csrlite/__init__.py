@@ -1,18 +1,15 @@
 import logging
 import sys
 
-from .ae.ae_listing import (
-    # AE listing functions
+from .ae.ae_listing import (  # AE listing functions
     ae_listing,
     study_plan_to_ae_listing,
 )
-from .ae.ae_specific import (
-    # AE specific functions
+from .ae.ae_specific import (  # AE specific functions
     ae_specific,
     study_plan_to_ae_specific,
 )
-from .ae.ae_summary import (
-    # AE summary functions
+from .ae.ae_summary import (  # AE summary functions
     ae_summary,
     study_plan_to_ae_summary,
 )
@@ -25,8 +22,7 @@ from .common.parse import (
     StudyPlanParser,
     parse_filter_to_sql,
 )
-from .common.plan import (
-    # Core classes
+from .common.plan import (  # Core classes
     load_plan,
 )
 from .disposition.disposition import study_plan_to_disposition_summary
