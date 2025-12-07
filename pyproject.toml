@@ -32,7 +32,6 @@ dependencies = [
 rtf = ["rtflite"]
 plotting = ["matplotlib>=3.5.0", "plotly>=5.0.0"]
 dev = [
-    "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "black>=22.0.0",
     "isort>=5.0.0",

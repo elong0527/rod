@@ -246,7 +246,7 @@ def disposition_ard(
 
     # Missing Subjects
     n_missing_counts = count_subject(
-        population=population_filtered.filter(pl.col(dist_reason_var_name).is_null()),
+        population=filtered_for_reason.filter(pl.col(dist_reason_var_name).is_null()),
         id=id_var_name,
         group=group_var_name,
         total=total,
