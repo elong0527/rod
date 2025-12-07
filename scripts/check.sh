@@ -6,7 +6,7 @@ source .venv/bin/activate
 ## Update Environments
 uv self update
 uv lock --upgrade
-uv sync --extra dev
+uv sync --all-extras --all-groups
 
 ## Code style
 uv run isort .

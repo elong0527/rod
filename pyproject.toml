@@ -26,11 +26,6 @@ dependencies = [
     "pyyaml>=6.0",
     "polars>=0.20.0",
     "rtflite>=2.1.1",
-    "isort>=7.0.0",
-    "ruff>=0.14.8",
-    "quarto>=0.1.0",
-    "mypy>=1.19.0",
-    "pyre>=1.12.5",
 ]
 
 [project.optional-dependencies]
@@ -38,15 +33,16 @@ rtf = ["rtflite"]
 plotting = ["matplotlib>=3.5.0", "plotly>=5.0.0"]
 dev = [
     "pytest-cov>=4.0.0",
-    "black>=22.0.0",
-    "isort>=5.0.0",
-    "mypy>=1.0.0",
     "pytest>=9.0.1",
+    "black>=22.0.0",
+    "isort>=7.0.0",
+    "ruff>=0.14.8",
+    "mypy>=1.19.0",
+    "quarto>=0.1.0",
+    "pyre-check>=0.9.18",
     "jupyter>=1.1.1",
     "jupyter-cache>=1.0.1",
     "nbformat>=5.10.4",
-    "ruff>=0.1.0",
-    "pyre-check>=0.9.18",
 ]
 all = ["rtflite", "matplotlib>=3.5.0", "plotly>=5.0.0"]
 

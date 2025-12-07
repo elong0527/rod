@@ -685,15 +685,10 @@ name = "csrlite"
 version = "0.2.0"
 source = { editable = "." }
 dependencies = [
-    { name = "isort" },
-    { name = "mypy" },
     { name = "polars" },
     { name = "pydantic" },
-    { name = "pyre" },
     { name = "pyyaml" },
-    { name = "quarto" },
     { name = "rtflite" },
-    { name = "ruff" },
 ]
 
 [package.optional-dependencies]
@@ -712,6 +707,7 @@ dev = [
     { name = "pyre-check" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "quarto" },
     { name = "ruff" },
 ]
 plotting = [
@@ -733,30 +729,26 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=22.0.0" },
-    { name = "isort", specifier = ">=7.0.0" },
-    { name = "isort", marker = "extra == 'dev'", specifier = ">=5.0.0" },
+    { name = "isort", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "jupyter", marker = "extra == 'dev'", specifier = ">=1.1.1" },
     { name = "jupyter-cache", marker = "extra == 'dev'", specifier = ">=1.0.1" },
     { name = "matplotlib", marker = "extra == 'all'", specifier = ">=3.5.0" },
     { name = "matplotlib", marker = "extra == 'plotting'", specifier = ">=3.5.0" },
-    { name = "mypy", specifier = ">=1.19.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.19.0" },
     { name = "nbformat", marker = "extra == 'dev'", specifier = ">=5.10.4" },
     { name = "plotly", marker = "extra == 'all'", specifier = ">=5.0.0" },
     { name = "plotly", marker = "extra == 'plotting'", specifier = ">=5.0.0" },
     { name = "polars", specifier = ">=0.20.0" },
     { name = "pydantic", specifier = ">=2.0.0" },
-    { name = "pyre", specifier = ">=1.12.5" },
     { name = "pyre-check", marker = "extra == 'dev'", specifier = ">=0.9.18" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.1" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
     { name = "pyyaml", specifier = ">=6.0" },
-    { name = "quarto", specifier = ">=0.1.0" },
+    { name = "quarto", marker = "extra == 'dev'", specifier = ">=0.1.0" },
     { name = "rtflite", specifier = ">=2.1.1" },
     { name = "rtflite", marker = "extra == 'all'" },
     { name = "rtflite", marker = "extra == 'rtf'" },
-    { name = "ruff", specifier = ">=0.14.8" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.14.8" },
 ]
 provides-extras = ["rtf", "plotting", "dev", "all"]
 
@@ -2693,23 +2685,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f2/a5/181488fc2b9d093e3972d2a472855aae8a03f000592dbfce716a512b3359/pyparsing-3.2.5.tar.gz", hash = "sha256:2df8d5b7b2802ef88e8d016a2eb9c7aeaa923529cd251ed0fe4608275d4105b6", size = 1099274, upload-time = "2025-09-21T04:11:06.277Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/10/5e/1aa9a93198c6b64513c9d7752de7422c06402de6600a8767da1524f9570b/pyparsing-3.2.5-py3-none-any.whl", hash = "sha256:e38a4f02064cf41fe6593d328d0512495ad1f3d8a91c4f73fc401b3079a59a5e", size = 113890, upload-time = "2025-09-21T04:11:04.117Z" },
-]
-
-[[package]]
-name = "pyre"
-version = "1.12.5"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pyyaml" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4e/ec/410c6afd6756cade8be132ae032cf286aae0ec478c80773b4490f5f08c42/pyre-1.12.5.tar.gz", hash = "sha256:9be1e0b75e0fe5a8259b4a0a7d445745c3f3a0dd93bef4f99687e000e92293d6", size = 2791592, upload-time = "2024-05-21T06:20:56.657Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/bc/f3/76b3726c768cf5c9e073b4cd93da6cc45536b812f461f07b5b6bd92974f1/pyre-1.12.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:fce943a262a0b53901d295ccc1de83079be1e7f9c641e7e649c4ebb326d7d1cd", size = 5796976, upload-time = "2024-05-21T06:28:24.63Z" },
-    { url = "https://files.pythonhosted.org/packages/42/86/1777d983b70699dc96267655429352144fde7ab0836ffb3196144ff7cdc4/pyre-1.12.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f1984c40d31816dac021088a5a519e0d778310a188f4064d9508153954a7c908", size = 3089930, upload-time = "2024-05-21T06:28:27.327Z" },
-    { url = "https://files.pythonhosted.org/packages/02/fd/3eb03940b3ac636b99cde59f80fdd8cb86d0945a9a8da99db89cd4ce8550/pyre-1.12.5-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:6ab96289572ccd83d2951ed013ff80a6c8661a43690bb1ea05365d081d7fa2bc", size = 5799428, upload-time = "2024-05-21T06:28:30.177Z" },
-    { url = "https://files.pythonhosted.org/packages/0e/c5/0b106af91efcbf7280b7c935d8671bc315ab4665cedcfe12eb0715ada630/pyre-1.12.5-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:12a19c28373c2e6fbec38ca5326bdacf701606ee04d29eac3530078bf57e5aaa", size = 3095970, upload-time = "2024-05-21T06:28:32.535Z" },
-    { url = "https://files.pythonhosted.org/packages/30/bc/11f40a780a9c709c7ffc8d0afa764fb3650b49edbf54d0748314461e62c3/pyre-1.12.5-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:727f2823c8124275956a0e5a39dc11306a3bf9f7ec29c2c93386896b10bbbe5b", size = 5828524, upload-time = "2024-05-21T06:28:34.772Z" },
-    { url = "https://files.pythonhosted.org/packages/c1/86/8eb16c219b42c3f504f348315ede2c9935dde518cb4586f24eb56fb818ad/pyre-1.12.5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c514ea180e44061f118f2b6172452e8cf36d9de8cca48dd229c62a2228232e24", size = 3101608, upload-time = "2024-05-21T06:28:36.619Z" },
 ]
 
 [[package]]
