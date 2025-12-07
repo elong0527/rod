@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "csrlite"
-version = "0.1.0"
+version = "0.2.0"
 description = "A hierarchical YAML-based framework for generating Tables, Listings, and Figures in clinical trials"
 authors = [{name = "Clinical Biostatistics Team", email = "biostat@example.com"}]
 license = {text = "MIT"}
