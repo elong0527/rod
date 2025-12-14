@@ -193,15 +193,11 @@ def ie_summary_ard(
     if failure_ids_not_in_pop.height > 0:
         # We need to construct a population dataframe for these subjects
         # We need the group variable.
-        # Check if group_var matches TRT01A (common case) and ADIE has TRT01P
         group_col_source = group_var_name
         if group_var_name not in obs_failures.columns:
-            if group_var_name == "TRT01A" and "TRT01P" in obs_failures.columns:
-                group_col_source = "TRT01P"
-            else:
-                # Fallback: Can't determine group, maybe use 'Missing' or error
-                # For now, let's try to find it or errors will occur later
-                pass
+            # Fallback: Can't determine group.
+            # For now, let's try to find it or errors will occur later
+            pass
 
         # Select unique subjects and their group from failures
         # Note: A subject might have multiple failures, so multiple rows.
