@@ -26,6 +26,10 @@ from .common.plan import (  # Core classes
     load_plan,
 )
 from .disposition.disposition import study_plan_to_disposition_summary
+from .ie.ie import (
+    ie_summary,
+    study_plan_to_ie_summary,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -49,6 +53,9 @@ __all__ = [
     "study_plan_to_ae_listing",
     # Disposition analysis
     "study_plan_to_disposition_summary",
+    # IE analysis
+    "ie_summary",
+    "study_plan_to_ie_summary",
     # Count functions
     "count_subject",
     "count_subject_with_observation",

@@ -1,0 +1,107 @@
+---
+title: "Inclusion/Exclusion Criteria Analysis"
+---
+
+::: {.callout-note}
+## Objectives
+
+This guide demonstrates Inclusion/Exclusion (IE) criteria analysis showing subjects excluded from the study.
+:::
+
+## Setup
+
+```{python}
+#| message: false
+import sys
+from pathlib import Path
+import polars as pl
+
+# Relative path to src from docs/
+sys.path.insert(0, '../src')
+
+# Import our new IE functions
+from csrlite import load_plan, study_plan_to_ie_summary
+from csrlite.ie.ie import ie_summary_ard, ie_summary_df, ie_summary_rtf, ie_summary
+```
+
+## StudyPlan-Driven Workflow
+
+We load the study plan specifically created for IE analysis.
+
+```{python}
+# Relative path to plan from docs/
+study_plan = load_plan("../studies/xyz123/yaml/plan_ie_xyz123.yaml")
+study_plan.get_plan_df()
+```
+
+Generate the outputs:
+
+```{python}
+output_files = study_plan_to_ie_summary(study_plan)
+print(f"Generated files: {output_files}")
+```
+
+## Step-by-Step Pipeline Inspection
+
+To understand the data, let's run the pipeline step-by-step.
+
+### Load Data
+
+```{python}
+# Relative paths to data from docs/
+adsl = pl.read_parquet("../data/adsl.parquet")
+adie = pl.read_parquet("../data/adie.parquet")
+
+print(f"ADSL: {len(adsl)} rows")
+print(f"ADIE: {len(adie)} rows (Criteria Flags)")
+```
+
+### Step 1: Generate ARD
+
+The Analysis Results Data (ARD) counts subjects with `AFLAG='Y'` (failures).
+
+```{python}
+_ard = ie_summary_ard(
+    population=adsl,
+    observation=adie,
+    population_filter=None,
+    id=("USUBJID", "Subject ID"),
+    group=("TRT01A", "Treatment Group"),
+    total=True,
+    missing_group="error"
+)
+
+_ard
+```
+
+**Output Structure:**
+- `__index__`: The criteria name (or "Enrolled").
+- `__group__`: Treatment group.
+- `__value__`: Formatted count n (%).
+
+### Step 2: Transform to Display Format
+
+Pivot to wide format for the report table.
+
+```{python}
+_df = ie_summary_df(_ard)
+_df
+```
+
+### Step 3: Generate RTF
+
+```{python}
+# Output path relative to docs/
+output_file = "../studies/xyz123/rtf/ie_summary_step.rtf"
+ie_summary_rtf(
+    _df,
+    title=[
+        "Summary of Inclusion/Exclusion Criteria Exceptions",
+        "(Enrolled Population)"
+    ],
+    footnote=["Percentages are based on the number of enrolled participants."],
+    source=None
+).write_rtf(output_file)
+
+print(f"Created {output_file}")
+```

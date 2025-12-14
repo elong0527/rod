@@ -1,0 +1,33 @@
+# Study XYZ123 - Analysis Plan for Inclusion/Exclusion
+# 
+
+study:
+  name: "XYZ123"
+  title: "Phase III Study of Drug X vs Placebo"
+  template:
+    - ../../yaml/organization.yaml
+  output: "studies/xyz123/rtf"
+
+# Analysis Plans
+plans:
+  # IE Summary
+  - analysis: "ie_summary"
+    population: "enrolled"
+    group: "trt01a"
+
+population:
+  - name: enrolled
+    filter: ""
+  
+  - name: apat
+    filter: "adsl:saffl == 'Y'"
+
+group:
+  - name: trt01a
+    variable: "adsl:trt01a"
+
+data:
+  - name: adsl 
+    path: ../../../data/adsl.parquet
+  - name: adie
+    path: ../../../data/adie.parquet
