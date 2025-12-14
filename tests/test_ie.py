@@ -8,7 +8,6 @@ from csrlite.common.plan import load_plan
 from csrlite.ie.ie import (
     ie_summary,
     ie_summary_ard,
-    ie_summary_df,
     ie_summary_rtf,
     study_plan_to_ie_summary,
 )
