@@ -266,7 +266,7 @@ def ie_summary_ard(
             pl.col("PARAMCAT").str.to_lowercase().str.contains(search_string.lower())
         )
 
-        # If no observations for this category, we might still want 
+        # If no observations for this category, we might still want
         # to show the header '0' if total is needed.
         # But typically if empty we show 0.
 
@@ -298,8 +298,8 @@ def ie_summary_ard(
             # TODO: If we want 0s, we need to construct it manually or pass empty obs.
             # count_subject_with_observation handles empty obs if variables provided.
             # But here variable values come FROM data usually.
-             # For now assume if no data, no header needed.
-             # (or handled by count's 0 filling if we pass explicit var list?)
+            # For now assume if no data, no header needed.
+            # (or handled by count's 0 filling if we pass explicit var list?)
             continue
 
         # --- Detail Rows (Indented) ---
