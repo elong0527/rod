@@ -51,7 +51,6 @@ output_files = study_plan_to_disposition_summary(study_plan)
 ```{python}
 #| echo: false
 for file in output_files:
-for file in output_files:
     if converter:
         converter.convert(file, output_dir="docs/pdf/", format="pdf", overwrite=True)
 ```
