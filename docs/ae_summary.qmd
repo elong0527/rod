@@ -28,7 +28,7 @@ sys.path.insert(0, 'src')
 from rtflite import LibreOfficeConverter
 try:
     converter = LibreOfficeConverter()
-except:
+except Exception:
     converter = None
     print("WARNING: LibreOffice not found. PDF conversion will be skipped.")
 ```
