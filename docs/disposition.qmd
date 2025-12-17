@@ -63,7 +63,7 @@ disposition(
     id=("USUBJID", "Subject ID"),
     group=("TRT01A", "Treatment Group"),
     ds_term=("EOSSTT", "Disposition Status"),
-    dist_reason_term=("DCREASCD", "Discontinued Reason"),
+    dist_reason_term=("DCSREAS", "Discontinued Reason"),
     title=[
         "Disposition Summary Table",
         "(Intent-to-Treat Population)"
@@ -98,7 +98,7 @@ _ard = disposition_ard(
     id=("USUBJID", "Subject ID"),
     group=("TRT01A", "Treatment Group"),
     ds_term=("EOSSTT", "Disposition Status"),
-    dist_reason_term=("DCREASCD", "Discontinued Reason"),
+    dist_reason_term=("DCSREAS", "Discontinued Reason"),
     total=True,
     missing_group="error"
 )

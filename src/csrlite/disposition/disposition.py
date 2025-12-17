@@ -39,7 +39,7 @@ def study_plan_to_disposition_summary(
 
     id = ("USUBJID", "Subject ID")
     ds_term = ("EOSSTT", "Disposition Status")
-    dist_reason_term = ("DCREASCD", "Discontinued Reason")
+    dist_reason_term = ("DCSREAS", "Discontinued Reason")
 
     total = True
     missing_group = "error"
