@@ -1,0 +1,88 @@
+---
+title: "Disposition Analysis - Study XYZ123"
+format: html
+---
+
+## Setup
+
+```{python}
+import sys
+from pathlib import Path
+import polars as pl
+
+# Add src to path (assuming running from root or adjusting relative path)
+# Set CWD to project root if we are in a subdirectory
+current_dir = Path.cwd()
+project_root = None
+
+# Look for pyproject.toml up the tree
+for parent in [current_dir] + list(current_dir.parents):
+    if (parent / "pyproject.toml").exists():
+        project_root = parent
+        break
+
+if project_root:
+    import os
+    os.chdir(project_root)
+    sys.path.insert(0, str(project_root / "src"))
+else:
+    # Fallback logic
+    if (current_dir / "src").exists():
+        sys.path.insert(0, str(current_dir / "src"))
+    else:
+        for parent in current_dir.parents:
+            if (parent / "src").exists():
+                sys.path.insert(0, str(parent / "src"))
+                break
+
+from csrlite import load_plan, study_plan_to_disposition_summary
+```
+
+## Run Analysis
+
+```{python}
+# Load the plan
+plan_path = Path("studies/xyz123/yaml/plan_xyz123.yaml")
+# Resolve absolute path if needed, but load_plan handles paths relative to CWD usually?
+# Let's make sure we find the plan
+if not plan_path.exists():
+     # Try relative to this file if it was rendered from here
+     plan_path = Path("yaml/plan_xyz123.yaml")
+
+print(f"Loading plan from: {plan_path.absolute()}")
+study_plan = load_plan(str(plan_path))
+
+# Execute
+output_files = study_plan_to_disposition_summary(study_plan)
+
+print("Generated files:")
+for f in output_files:
+    print(f)
+```
+
+## Output Verification
+
+The following files were created:
+
+```{python}
+#| echo: false
+from IPython.display import Markdown
+
+links = []
+for f in output_files:
+    p = Path(f)
+    # create relative link from this qmd location (studies/xyz123/)
+    # outputs are in studies/xyz123/rtf/
+    # so likely just rtf/filename
+    try:
+        rel_path = p.relative_to(Path("studies/xyz123").absolute())
+    except ValueError:
+        try:
+            rel_path = p.relative_to(Path.cwd() / "studies/xyz123")
+        except:
+            rel_path = p 
+    
+    links.append(f"- [{p.name}]({rel_path})")
+
+Markdown("\n".join(links))
+```

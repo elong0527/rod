@@ -19,7 +19,10 @@ import polars as pl
 sys.path.insert(0, 'src')
 
 from rtflite import LibreOfficeConverter
-converter = LibreOfficeConverter()
+try:
+    converter = LibreOfficeConverter()
+except FileNotFoundError:
+    converter = None
 ```
 
 ```{python}
@@ -34,7 +37,10 @@ from csrlite.disposition.disposition import disposition_ard, disposition_df, dis
 ## StudyPlan-Driven Workflow
 
 ```{python}
-study_plan = load_plan("studies/xyz123/yaml/plan_ae_xyz123.yaml")
+plan_path = Path("studies/xyz123/yaml/plan_xyz123.yaml")
+if not plan_path.exists():
+    plan_path = Path("../studies/xyz123/yaml/plan_xyz123.yaml")
+study_plan = load_plan(str(plan_path))
 study_plan.get_plan_df().filter(pl.col("analysis") == "disposition_summary")
 ```
 
@@ -45,7 +51,9 @@ output_files = study_plan_to_disposition_summary(study_plan)
 ```{python}
 #| echo: false
 for file in output_files:
-    converter.convert(file, output_dir="docs/pdf/", format="pdf", overwrite=True)
+for file in output_files:
+    if converter:
+        converter.convert(file, output_dir="docs/pdf/", format="pdf", overwrite=True)
 ```
 
 ### Disposition Summary
@@ -78,7 +86,8 @@ disposition(
 
 ```{python}
 #| echo: false
-converter.convert(f"{study_plan.output_dir}/disposition.rtf", output_dir="docs/pdf/", format="pdf", overwrite=True)
+if converter:
+    converter.convert(f"{study_plan.output_dir}/disposition.rtf", output_dir="docs/pdf/", format="pdf", overwrite=True)
 ```
 
 <embed src="pdf/disposition.pdf" style="width:100%; height:600px" type="application/pdf">
@@ -134,7 +143,8 @@ disposition_rtf(
 
 ```{python}
 #| echo: false
-converter.convert(f"{study_plan.output_dir}/disposition_step.rtf", output_dir="docs/pdf/", format="pdf", overwrite=True)
+if converter:
+    converter.convert(f"{study_plan.output_dir}/disposition_step.rtf", output_dir="docs/pdf/", format="pdf", overwrite=True)
 ```
 
 <embed src="pdf/disposition_step.pdf" style="width:100%; height:600px" type="application/pdf">
