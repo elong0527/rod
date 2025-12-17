@@ -1,21 +1,19 @@
 # pyre-strict
+import shutil
+import tempfile
 import unittest
 import unittest.mock
 from unittest.mock import MagicMock, patch
-import tempfile
-import shutil
-from pathlib import Path
 
 import polars as pl
-from typing import Any
 
+from csrlite.common.plan import StudyPlan
 from csrlite.ie.ie import (
     ie_ard,
     ie_df,
     ie_rtf,
     study_plan_to_ie_summary,
 )
-from csrlite.common.plan import StudyPlan
 
 
 class TestIEArd(unittest.TestCase):
@@ -146,7 +144,9 @@ class TestStudyPlanToIeSummary(unittest.TestCase):
 
     @patch("csrlite.ie.ie.StudyPlanParser")
     @patch("csrlite.ie.ie.ie_rtf")
-    def test_study_plan_to_ie_summary(self, mock_ie_rtf: MagicMock, mock_parser_cls: MagicMock) -> None:
+    def test_study_plan_to_ie_summary(
+        self, mock_ie_rtf: MagicMock, mock_parser_cls: MagicMock
+    ) -> None:
         """Test the full pipeline function."""
         # Mock StudyPlan
         study_plan = MagicMock(spec=StudyPlan)
@@ -170,7 +170,8 @@ class TestStudyPlanToIeSummary(unittest.TestCase):
         
         # Mock Expander
         mock_expander = MagicMock()
-        mock_expander.expand_plan.return_value = study_plan.study_data["plans"] # Return list of plans
+        # Return list of plans
+        mock_expander.expand_plan.return_value = study_plan.study_data["plans"]
         mock_expander.create_analysis_spec.side_effect = lambda x: x # Identity
         study_plan.expander = mock_expander
 
@@ -197,7 +198,9 @@ class TestStudyPlanToIeSummary(unittest.TestCase):
     @patch("csrlite.ie.ie.StudyPlanParser")
     @patch("csrlite.ie.ie.ie_rtf")
     @patch("csrlite.ie.ie.apply_common_filters")
-    def test_study_plan_to_ie_summary_no_group(self, mock_apply: MagicMock, mock_ie_rtf: MagicMock, mock_parser_cls: MagicMock) -> None:
+    def test_study_plan_to_ie_summary_no_group(
+        self, mock_apply: MagicMock, mock_ie_rtf: MagicMock, mock_parser_cls: MagicMock
+    ) -> None:
         """Test pipeline without group."""
         # Mock StudyPlan
         study_plan = MagicMock(spec=StudyPlan)
