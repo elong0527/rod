@@ -157,3 +157,6 @@ examples/output/
 # Quarto generated files
 site_libs/
 *_files/
+
+# Generated HTML reports
+*.html
