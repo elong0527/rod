@@ -38,7 +38,7 @@ from csrlite.ae.ae_listing import ae_listing_ard, ae_listing_rtf, ae_listing
 ## StudyPlan-Driven Workflow
 
 ```{python}
-study_plan = load_plan("studies/xyz123/yaml/plan_ae_xyz123.yaml")
+study_plan = load_plan("studies/xyz123/yaml/plan_xyz123.yaml")
 study_plan.get_plan_df().filter(pl.col("analysis") == "ae_listing")
 ```
 

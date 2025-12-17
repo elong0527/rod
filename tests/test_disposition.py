@@ -437,7 +437,7 @@ class TestStudyPlanToDisposition(unittest.TestCase):
     def test_study_plan_to_disposition_summary(self) -> None:
         """Test generating disposition tables from StudyPlan."""
         # Load the study plan
-        study_plan = load_plan("studies/xyz123/yaml/plan_ae_xyz123.yaml")
+        study_plan = load_plan("studies/xyz123/yaml/plan_xyz123.yaml")
 
         original_get_datasets: Callable[[StudyPlanParser, str], tuple[pl.DataFrame]] = (
             StudyPlanParser.get_datasets
