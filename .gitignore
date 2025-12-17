@@ -153,3 +153,7 @@ examples/output/
 /.quarto/
 
 **/*.quarto_ipynb
+
+# Quarto generated files
+site_libs/
+*_files/

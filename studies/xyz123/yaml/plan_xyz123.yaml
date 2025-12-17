@@ -1,0 +1,98 @@
+# Study XYZ123 - Analysis Plan
+# This file contains only the plan specifications using condensed keyword approach
+
+study:
+  name: "XYZ123"
+  title: "Phase III Study of Drug X vs Placebo"
+  template:
+    - ../../yaml/organization.yaml
+  output: "studies/xyz123/rtf"
+
+# Analysis Plans - Using metalite-style condensed format
+plans:
+  # Demographics - Single combination
+  - analysis: "demographics"
+    population: "itt"
+    group: "trt01a"
+
+  # AE Summary tables
+  - analysis: "ae_summary"
+    population: "apat"
+    observation: ["week12", "week24"]
+    group: "trt01a"
+    parameter: "any;rel;ser"  # Semicolon-separated for single combination
+
+  # AE Specific analysis - Multiple parameters as list
+  - analysis: "ae_specific"
+    population: "apat"
+    observation: ["week12", "week24"]
+    group: "trt01a"
+    parameter: ["any", "rel", "ser"]  # List for multiple combinations
+
+  # AE Listings
+  - analysis: "ae_listing"
+    population: "apat"
+    observation: ["week12", "week24"]
+    group: "trt01a"
+    parameter: ["ser"]  
+
+population:
+  - name: enrolled
+    filter: ""
+
+  - name: apat
+    filter: "adsl:saffl == 'Y'"
+
+  - name: itt
+    filter: "adsl:ittfl == 'Y'"
+
+observation:
+  - name: week12
+    label: "Week 0 to 12"
+    description: "12-week post-baseline assessment"
+    filter: "adae:aendy <= 12*7"
+
+  - name: week24
+    label: "Week 0 to 24"
+    description: "24-week post-baseline assessment"
+    filter: "adae:aendy <= 24*7"
+
+group:
+  - name: trt01a
+    variable: "adsl:trt01a"
+
+parameter:
+  - name: any
+    label: "with one or more adverse events"
+    filter: "adae:trtemfl == 'Y'"
+
+  - name: rel
+    label: "with drug-related adverse events"
+    terms:
+      before: "drug-related"
+    filter: "adae:trtemfl == 'Y' and adae:aerel in ['PROBABLE', 'POSSIBLE']"
+
+  - name: ser
+    label: "with serious adverse events"
+    filter: "adae:trtemfl == 'Y' and adae:aeser == 'Y'"
+    terms:
+      before: "serious"
+
+  - name: death
+    label: "with adverse events resulting in death"
+    filter: "adae:trtemfl == 'Y' and adae:ae"
+    terms:
+      after: "resulting in death"
+
+  - name: ser_death
+    label: "with serious adverse events resulting in death"
+    filter: "adae:trtemfl == 'Y' and adae:aeser == 'Y' and adae:ae"
+    terms:
+      before: "serious"
+      after: "resulting in death"
+
+data:
+  - name: adsl 
+    path: ../../../data/adsl.parquet
+  - name: adae
+    path: ../../../data/adae.parquet

@@ -44,7 +44,7 @@ The study plan contains population definitions, observation periods, parameters,
 
 ```{python}
 # Load study plan from YAML
-study_plan = load_plan("studies/xyz123/yaml/plan_ae_xyz123.yaml")
+study_plan = load_plan("studies/xyz123/yaml/plan_xyz123.yaml")
 study_plan.get_plan_df().filter(pl.col("analysis") == "ae_summary")
 ```
 

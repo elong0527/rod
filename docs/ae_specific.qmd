@@ -37,7 +37,7 @@ from csrlite.ae.ae_specific import ae_specific_ard, ae_specific_df, ae_specific_
 ## StudyPlan-Driven Workflow
 
 ```{python}
-study_plan = load_plan("studies/xyz123/yaml/plan_ae_xyz123.yaml")
+study_plan = load_plan("studies/xyz123/yaml/plan_xyz123.yaml")
 study_plan.get_plan_df().filter(pl.col("analysis") == "ae_specific")
 ```
 

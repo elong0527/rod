@@ -36,7 +36,7 @@ The structure of the YAML files are discussed in the [inheritance](inheritance.h
 We load the analysis plan that leverage information in pre-specified templates.
 
 ```{python}
-study_plan = load_plan('studies/xyz123/yaml/plan_ae_xyz123.yaml')
+study_plan = load_plan('studies/xyz123/yaml/plan_xyz123.yaml')
 ```
 
 ```{python}
