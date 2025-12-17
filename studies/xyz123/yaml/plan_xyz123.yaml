@@ -15,6 +15,11 @@ plans:
     population: "itt"
     group: "trt01a"
 
+  # Disposition Summary
+  - analysis: "disposition_summary"
+    population: "enrolled"
+    group: "trt01a"
+
   # AE Summary tables
   - analysis: "ae_summary"
     population: "apat"
@@ -35,6 +40,8 @@ plans:
     observation: ["week12", "week24"]
     group: "trt01a"
     parameter: ["ser"]  
+
+
 
 population:
   - name: enrolled
@@ -96,3 +103,4 @@ data:
     path: ../../../data/adsl.parquet
   - name: adae
     path: ../../../data/adae.parquet
+
