@@ -25,7 +25,7 @@ from csrlite.ie.ie_listing import ie_listing_ard, ie_listing_rtf, ie_listing
 ## StudyPlan-Driven Workflow
 
 ```{python}
-study_plan = load_plan("../studies/xyz123/yaml/plan_ie_listing_xyz123.yaml")
+study_plan = load_plan("../studies/xyz123/yaml/plan_xyz123.yaml")
 study_plan.get_plan_df()
 ```
 

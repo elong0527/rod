@@ -41,7 +41,13 @@ plans:
     group: "trt01a"
     parameter: ["ser"]  
 
+  # IE Summary
+  - analysis: "ie_summary"
+    population: "enrolled"
 
+  # IE Listing
+  - analysis: "ie_listing"
+    population: "itt"
 
 population:
   - name: enrolled
@@ -103,4 +109,5 @@ data:
     path: ../../../data/adsl.parquet
   - name: adae
     path: ../../../data/adae.parquet
-
+  - name: adie
+    path: ../../../data/adie.parquet

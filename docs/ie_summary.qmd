@@ -30,7 +30,7 @@ We load the study plan specifically created for IE analysis.
 
 ```{python}
 # Relative path to plan from docs/
-study_plan = load_plan("../studies/xyz123/yaml/plan_ie_xyz123.yaml")
+study_plan = load_plan("../studies/xyz123/yaml/plan_xyz123.yaml")
 study_plan.get_plan_df()
 ```
 
