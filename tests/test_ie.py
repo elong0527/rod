@@ -1,13 +1,21 @@
 # pyre-strict
 import unittest
 import unittest.mock
+from unittest.mock import MagicMock, patch
+import tempfile
+import shutil
+from pathlib import Path
 
 import polars as pl
+from typing import Any
 
 from csrlite.ie.ie import (
     ie_ard,
     ie_df,
+    ie_rtf,
+    study_plan_to_ie_summary,
 )
+from csrlite.common.plan import StudyPlan
 
 
 class TestIEArd(unittest.TestCase):
@@ -95,6 +103,148 @@ class TestIEArd(unittest.TestCase):
         # Assumption for now: Code logic is consistent with itself.
         self.assertEqual(row0["A"], "1 (100.0)")
 
+    def test_ie_ard_no_group(self) -> None:
+        """Test ARD generation without group column."""
+        ard = ie_ard(adsl=self.adsl, adie=self.adie, group_col=None)
+        
+        self.assertIn("count_Total", ard.columns)
+        self.assertIn("pct_Total", ard.columns)
+        self.assertNotIn("count_A", ard.columns)
+
+        # Total failures: 01, 03, 04 -> 3 subjects
+        row0 = ard.row(0, named=True)
+        self.assertEqual(row0["count_Total"], 3)
+
+
+class TestIeRtf(unittest.TestCase):
+    @patch("csrlite.ie.ie.create_rtf_table_n_pct")
+    def test_ie_rtf(self, mock_create: MagicMock) -> None:
+        """Test RTF generation calls."""
+        df = pl.DataFrame({"Criteria": ["Row 1"], "Total": ["1 (100.0)"]})
+        mock_doc = MagicMock()
+        mock_create.return_value = mock_doc
+        
+        ie_rtf(df, "output.rtf", title="Test Title")
+        
+        mock_create.assert_called_once()
+        args, kwargs = mock_create.call_args
+        self.assertEqual(kwargs["title"], ["Test Title"])
+        self.assertEqual(kwargs["col_header_1"], ["Criteria", "Total"])
+        self.assertEqual(kwargs["col_header_2"], ["", "n (%)"])
+        
+        mock_doc.write_rtf.assert_called_with("output.rtf")
+
+
+class TestStudyPlanToIeSummary(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp_dir = tempfile.mkdtemp()
+        self.adsl = pl.DataFrame({"USUBJID": ["01"], "TRT01A": ["A"]})
+        self.adie = pl.DataFrame({"USUBJID": ["01"], "PARAMCAT": ["EXCLUSION"], "PARAM": ["X"]})
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.temp_dir)
+
+    @patch("csrlite.ie.ie.StudyPlanParser")
+    @patch("csrlite.ie.ie.ie_rtf")
+    def test_study_plan_to_ie_summary(self, mock_ie_rtf: MagicMock, mock_parser_cls: MagicMock) -> None:
+        """Test the full pipeline function."""
+        # Mock StudyPlan
+        study_plan = MagicMock(spec=StudyPlan)
+        study_plan.output_dir = self.temp_dir
+        # Mock datasets
+        study_plan.datasets = MagicMock()
+        # Mock keywords
+        study_plan.keywords = MagicMock()
+        study_plan.keywords.get_population.return_value = None
+
+        # Mock analysis plans
+        study_plan.study_data = {
+            "plans": [
+                {
+                    "analysis": "ie_summary",
+                    "population": "enrolled",
+                    "group": "trt01a"
+                }
+            ]
+        }
+        
+        # Mock Expander
+        mock_expander = MagicMock()
+        mock_expander.expand_plan.return_value = study_plan.study_data["plans"] # Return list of plans
+        mock_expander.create_analysis_spec.side_effect = lambda x: x # Identity
+        study_plan.expander = mock_expander
+
+        # Mock Parser instance
+        mock_parser = mock_parser_cls.return_value
+        # Mock parser methods
+        mock_parser.get_population_data.return_value = (self.adsl, "TRT01A")
+        mock_parser.get_datasets.return_value = (self.adie,)
+
+        # Run
+        generated = study_plan_to_ie_summary(study_plan)
+
+        # Verify
+        self.assertEqual(len(generated), 1)
+        self.assertTrue(generated[0].endswith("ie_summary_enrolled_trt01a.rtf"))
+        
+        # Verify parser calls
+        mock_parser.get_population_data.assert_called_with("enrolled", "trt01a")
+        mock_parser.get_datasets.assert_called_with("adie")
+        
+        # Verify RTF generation called
+        mock_ie_rtf.assert_called_once()
+
+    @patch("csrlite.ie.ie.StudyPlanParser")
+    @patch("csrlite.ie.ie.ie_rtf")
+    @patch("csrlite.ie.ie.apply_common_filters")
+    def test_study_plan_to_ie_summary_no_group(self, mock_apply: MagicMock, mock_ie_rtf: MagicMock, mock_parser_cls: MagicMock) -> None:
+        """Test pipeline without group."""
+        # Mock StudyPlan
+        study_plan = MagicMock(spec=StudyPlan)
+        study_plan.output_dir = self.temp_dir
+        # Mock datasets
+        study_plan.datasets = MagicMock()
+        # Mock keywords
+        study_plan.keywords = MagicMock()
+        study_plan.keywords.get_population.return_value = None
+        # Mock analysis plans
+        study_plan.study_data = {
+            "plans": [
+                {
+                    "analysis": "ie_summary",
+                    "population": "enrolled",
+                    # No group
+                }
+            ]
+        }
+        
+        mock_expander = MagicMock()
+        mock_expander.expand_plan.return_value = study_plan.study_data["plans"]
+        mock_expander.create_analysis_spec.side_effect = lambda x: x
+        study_plan.expander = mock_expander
+
+        # Mock Parser
+        mock_parser = mock_parser_cls.return_value
+        # Mock get_datasets for ADSL and ADIE
+        mock_parser.get_datasets.side_effect = [
+            (self.adsl,), # First call for ADSL
+            (self.adie,), # Second call for ADIE
+        ]
+        mock_parser.get_population_filter.return_value = None
+        
+        # Mock apply_common_filters
+        mock_apply.return_value = (self.adsl, None)
+
+        # Run
+        generated = study_plan_to_ie_summary(study_plan)
+
+        # Verify
+        self.assertEqual(len(generated), 1)
+        self.assertTrue(generated[0].endswith("ie_summary_enrolled_total.rtf"))
+        
+        # Verify flow
+        mock_parser.get_datasets.assert_any_call("adsl")
+        mock_apply.assert_called()
 
 if __name__ == "__main__":
     unittest.main()

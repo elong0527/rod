@@ -726,6 +726,8 @@ dev = [
     { name = "nbclient" },
     { name = "notebook" },
     { name = "pyre-check" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
     { name = "ruff" },
 ]
 
@@ -763,6 +765,8 @@ dev = [
     { name = "nbclient", specifier = ">=0.10.2" },
     { name = "notebook", specifier = ">=7.5.0" },
     { name = "pyre-check", specifier = ">=0.9.25" },
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "pytest-cov", specifier = ">=7.0.0" },
     { name = "ruff", specifier = ">=0.14.8" },
 ]
 
