@@ -287,6 +287,8 @@ def ie_rtf(df: pl.DataFrame, output_path: str, title: str = "") -> None:
     )
 
     rtf_doc.write_rtf(output_path)
+
+
 def study_plan_to_ie_listing(
     study_plan: StudyPlan,
 ) -> list[str]:
@@ -319,7 +321,7 @@ def study_plan_to_ie_listing(
     # If the user only asked for "ie_listing", we might need to add it to the plan or just run it blindly for all?
     # Usually we filter by analysis_type.
     listing_plans = plan_df.filter(pl.col("analysis") == analysis_type)
-    
+
     # If no specific listing plans are found, maybe we should just generate one default one for the whole study?
     # But sticking to the pattern:
     generated_files = []
@@ -331,17 +333,17 @@ def study_plan_to_ie_listing(
         listing_plans = pl.DataFrame([{"population": "enrolled", "analysis": analysis_type}])
 
     for analysis in listing_plans.iter_rows(named=True):
-         # Load ADSL
+        # Load ADSL
         pop_name = analysis.get("population", "enrolled")
-        
+
         try:
-             # Load Filtered Population (ADSL) without Group (Listings usually don't group by columns like tables)
-             # But if they did, we'd handle it. For now, just load raw ADSL.
+            # Load Filtered Population (ADSL) without Group (Listings usually don't group by columns like tables)
+            # But if they did, we'd handle it. For now, just load raw ADSL.
             (adsl_raw,) = parser.get_datasets("adsl")
             # We could filter, but user just said "show USUBJID and DCSREAS from adsl".
             # Applying population filter if possible.
             pop_filter = parser.get_population_filter(pop_name)
-            
+
             adsl, _ = apply_common_filters(
                 population=adsl_raw,
                 observation=None,
@@ -357,7 +359,7 @@ def study_plan_to_ie_listing(
         filename = f"{analysis_type}_{pop_name}.rtf".lower()
         output_path = f"{output_dir}/{filename}"
 
-         # Generate DF
+        # Generate DF
         df = ie_listing_df(adsl)
 
         # Generate RTF
@@ -378,8 +380,8 @@ def ie_listing_df(adsl: pl.DataFrame) -> pl.DataFrame:
 
 def ie_listing_rtf(df: pl.DataFrame, output_path: str, title: str = "") -> None:
     """Generate RTF Listing."""
-    
-    col_widths = [1.5, 3.5] # Approximate ratio
+
+    col_widths = [1.5, 3.5]  # Approximate ratio
 
     rtf_doc = create_rtf_listing(
         df=df,
