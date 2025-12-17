@@ -54,7 +54,6 @@ output_files = study_plan_to_ae_specific(study_plan)
 ```{python}
 #| echo: false
 for file in output_files:
-for file in output_files:
     if converter:
         converter.convert(file, output_dir="docs/pdf/", format="pdf", overwrite=True)
 ```
