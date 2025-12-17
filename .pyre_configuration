@@ -4,6 +4,6 @@
         "tests"
     ],
     "search_path": [
-        "/home/ming/csrlite/.venv/lib/python3.13/site-packages"
+        ".venv/lib/python3.13/site-packages"
     ]
 }
