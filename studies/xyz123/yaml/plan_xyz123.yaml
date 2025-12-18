@@ -51,6 +51,10 @@ plans:
   - analysis: "ie_summary"
     population: "all"
 
+  # IE Listing
+  - analysis: "ie_listing"
+    population: "discon"
+
 population:
   - name: all
     filter: ""
@@ -63,6 +67,9 @@ population:
 
   - name: itt
     filter: "adsl:ittfl == 'Y'"
+
+  - name: discon
+    filter: "adsl:disconfl == 'Y'"
 
 observation:
   - name: week12

@@ -16,7 +16,7 @@ import polars as pl
 
 from ..common.parse import StudyPlanParser
 from ..common.plan import StudyPlan
-from ..common.rtf import create_rtf_table_n_pct
+from ..common.rtf import create_rtf_listing, create_rtf_table_n_pct
 from ..common.utils import apply_common_filters
 
 
@@ -51,7 +51,10 @@ def study_plan_to_ie_summary(
 
     plan_df = pl.DataFrame(all_specs)
 
-    ie_plans = plan_df.filter(pl.col("analysis") == analysis_type)
+    if "analysis" in plan_df.columns:
+        ie_plans = plan_df.filter(pl.col("analysis") == analysis_type)
+    else:
+        ie_plans = pl.DataFrame()
 
     generated_files = []
 
@@ -280,6 +283,119 @@ def ie_rtf(df: pl.DataFrame, output_path: str, title: str = "") -> None:
         df=df,
         col_header_1=col_header_1,
         col_header_2=col_header_2,
+        col_widths=col_widths,
+        title=[title],
+        footnote=None,
+        source=None,
+    )
+
+    rtf_doc.write_rtf(output_path)
+
+
+def study_plan_to_ie_listing(
+    study_plan: StudyPlan,
+) -> list[str]:
+    """
+    Generate IE Listing outputs.
+    """
+    # Meta data
+    analysis_type = "ie_listing"
+    output_dir = study_plan.output_dir
+    title = "Listing of Protocol Deviations"
+
+    # Ensure output directory exists
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    # Initialize parser
+    parser = StudyPlanParser(study_plan)
+
+    # Get expanded plan (Manually expansion to avoid AttributeError)
+    plans = study_plan.study_data.get("plans", [])
+    all_specs = []
+    for plan_data in plans:
+        expanded = study_plan.expander.expand_plan(plan_data)
+        for p in expanded:
+            all_specs.append(study_plan.expander.create_analysis_spec(p))
+
+    plan_df = pl.DataFrame(all_specs)
+
+    # Filter for ie_listing if user specified it, otherwise we might trigger it manually
+    # But for now let's assume if this function is called, we want to run for "ie_listing"
+    # If the user only asked for "ie_listing", we might need to add it to the plan
+    # or just run it blindly for all?
+    # Usually we filter by analysis_type.
+    if "analysis" in plan_df.columns:
+        listing_plans = plan_df.filter(pl.col("analysis") == analysis_type)
+    else:
+        listing_plans = pl.DataFrame()
+
+    # If no specific listing plans are found, maybe we should just generate one
+    # default one for the whole study?
+    # But sticking to the pattern:
+    generated_files = []
+
+    # If listing_plans is empty, let's create a default one to ensure we generate
+    # something for the user
+    # since they explicitly asked for it.
+    if listing_plans.height == 0:
+        # Create a dummy row to force generation
+        listing_plans = pl.DataFrame([{"population": "enrolled", "analysis": analysis_type}])
+
+    for analysis in listing_plans.iter_rows(named=True):
+        # Load ADSL
+        pop_name = analysis.get("population", "enrolled")
+
+        try:
+            # Load Filtered Population (ADSL) without Group
+            # (Listings usually don't group by columns like tables)
+            # But if they did, we'd handle it. For now, just load raw ADSL.
+            (adsl_raw,) = parser.get_datasets("adsl")
+            # We could filter, but user just said "show USUBJID and DCSREAS from adsl".
+            # Applying population filter if possible.
+            pop_filter = parser.get_population_filter(pop_name)
+
+            adsl, _ = apply_common_filters(
+                population=adsl_raw,
+                observation=None,
+                population_filter=pop_filter,
+                observation_filter=None,
+            )
+
+        except ValueError as e:
+            print(f"Error loading population: {e}")
+            continue
+
+        # Output filename
+        filename = f"{analysis_type}_{pop_name}.rtf".lower()
+        output_path = f"{output_dir}/{filename}"
+
+        # Generate DF
+        df = ie_listing_df(adsl)
+
+        # Generate RTF
+        ie_listing_rtf(df, output_path, title=title)
+
+        generated_files.append(output_path)
+
+    return generated_files
+
+
+def ie_listing_df(adsl: pl.DataFrame) -> pl.DataFrame:
+    """Select columns for Listing."""
+    # Check if DCSREAS exists
+    cols = ["USUBJID", "DCSREAS"]
+    available = [c for c in cols if c in adsl.columns]
+    return adsl.select(available)
+
+
+def ie_listing_rtf(df: pl.DataFrame, output_path: str, title: str = "") -> None:
+    """Generate RTF Listing."""
+
+    col_widths = [1.5, 3.5]  # Approximate ratio
+
+    rtf_doc = create_rtf_listing(
+        df=df,
+        col_header=list(df.columns),
         col_widths=col_widths,
         title=[title],
         footnote=None,

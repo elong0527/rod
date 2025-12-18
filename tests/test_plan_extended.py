@@ -113,12 +113,19 @@ class TestPlanExtended(unittest.TestCase):
         self.assertEqual(reg2.groups["g2"].group_label, ["X", "Y"])
 
     def test_load_plan_wrapper(self):
-        with NamedTemporaryFile(mode="w", suffix=".yaml", delete=True) as tmp:
-            yaml.dump(self.study_data, tmp)
-            tmp.flush()
+        import os
+
+        tmp_name = ""
+        try:
+            with NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as tmp:
+                yaml.dump(self.study_data, tmp)
+                tmp_name = tmp.name
 
             with patch("csrlite.common.plan.pl.read_parquet") as mock_read:
                 mock_read.return_value = pl.DataFrame()
-                plan = load_plan(tmp.name)
+                plan = load_plan(tmp_name)
                 self.assertIsNotNone(plan)
                 self.assertEqual(plan.study_data["study"]["name"], "Test Study")
+        finally:
+            if tmp_name and os.path.exists(tmp_name):
+                os.unlink(tmp_name)

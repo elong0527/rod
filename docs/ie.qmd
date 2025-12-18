@@ -27,7 +27,7 @@ except Exception:
 ```
 
 ```{python}
-from csrlite import load_plan, study_plan_to_ie_summary
+from csrlite import load_plan, study_plan_to_ie_summary, study_plan_to_ie_listing
 from csrlite.ie.ie import ie_ard, ie_df, ie_rtf
 ```
 
@@ -45,6 +45,7 @@ Generate all IE tables defined in the study plan.
 ```{python}
 study_plan = load_plan("studies/xyz123/yaml/plan_xyz123.yaml")
 output_files = study_plan_to_ie_summary(study_plan)
+output_files += study_plan_to_ie_listing(study_plan)
 print(f"Generated {len(output_files)} output files:")
 for f in output_files:
     print(f"- {f}")

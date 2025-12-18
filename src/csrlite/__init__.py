@@ -30,6 +30,7 @@ from .ie.ie import (
     ie_ard,
     ie_df,
     ie_rtf,
+    study_plan_to_ie_listing,
     study_plan_to_ie_summary,
 )
 
@@ -66,4 +67,5 @@ __all__ = [
     "ie_df",
     "ie_rtf",
     "study_plan_to_ie_summary",
+    "study_plan_to_ie_listing",
 ]
