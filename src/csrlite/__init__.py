@@ -26,6 +26,12 @@ from .common.plan import (  # Core classes
     load_plan,
 )
 from .disposition.disposition import study_plan_to_disposition_summary
+from .ie.ie import (
+    ie_ard,
+    ie_df,
+    ie_rtf,
+    study_plan_to_ie_summary,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -55,4 +61,9 @@ __all__ = [
     # Parse utilities
     "StudyPlanParser",
     "parse_filter_to_sql",
+    # IE analysis
+    "ie_ard",
+    "ie_df",
+    "ie_rtf",
+    "study_plan_to_ie_summary",
 ]

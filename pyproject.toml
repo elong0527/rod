@@ -150,6 +150,11 @@ ignore = []
 dev = [
     "jupyter>=1.1.1",
     "jupyter-cache>=1.0.1",
+    "mypy>=1.19.0",
     "nbclient>=0.10.2",
     "notebook>=7.5.0",
+    "pyre-check>=0.9.25",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.8",
 ]

@@ -30,6 +30,10 @@ book:
         - docs/ae_summary.qmd
         - docs/ae_specific.qmd
         - docs/ae_listing.qmd
+
+    - part: "Inclusion/Exclusion"
+      chapters:
+        - docs/ie.qmd
     - part: "Disposition"
       chapters:
         - docs/disposition.qmd

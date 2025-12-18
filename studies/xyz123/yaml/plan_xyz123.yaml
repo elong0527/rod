@@ -40,8 +40,21 @@ plans:
     observation: ["week12", "week24"]
     group: "trt01a"
     parameter: ["ser"]  
+  # AE Listings
+  - analysis: "ae_listing"
+    population: "apat"
+    observation: ["week12", "week24"]
+    group: "trt01a"
+    parameter: ["ser"]
+
+  # IE Summary
+  - analysis: "ie_summary"
+    population: "all"
 
 population:
+  - name: all
+    filter: ""
+
   - name: enrolled
     filter: ""
 
@@ -101,3 +114,5 @@ data:
     path: ../../../data/adsl.parquet
   - name: adae
     path: ../../../data/adae.parquet
+  - name: adie
+    path: ../../../data/adie.parquet
