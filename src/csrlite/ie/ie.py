@@ -51,7 +51,10 @@ def study_plan_to_ie_summary(
 
     plan_df = pl.DataFrame(all_specs)
 
-    ie_plans = plan_df.filter(pl.col("analysis") == analysis_type)
+    if "analysis" in plan_df.columns:
+        ie_plans = plan_df.filter(pl.col("analysis") == analysis_type)
+    else:
+        ie_plans = pl.DataFrame()
 
     generated_files = []
 
@@ -321,7 +324,10 @@ def study_plan_to_ie_listing(
     # If the user only asked for "ie_listing", we might need to add it to the plan
     # or just run it blindly for all?
     # Usually we filter by analysis_type.
-    listing_plans = plan_df.filter(pl.col("analysis") == analysis_type)
+    if "analysis" in plan_df.columns:
+        listing_plans = plan_df.filter(pl.col("analysis") == analysis_type)
+    else:
+        listing_plans = pl.DataFrame()
 
     # If no specific listing plans are found, maybe we should just generate one
     # default one for the whole study?

@@ -243,6 +243,36 @@ class TestStudyPlanToIeSummary(unittest.TestCase):
         mock_parser.get_datasets.assert_any_call("adsl")
         mock_apply.assert_called()
 
+    @patch("csrlite.ie.ie.StudyPlanParser")
+    def test_study_plan_to_ie_summary_dataset_error(self, mock_parser_cls: MagicMock) -> None:
+        """Test error handling when dataset loading fails."""
+        # Mock StudyPlan
+        study_plan = MagicMock(spec=StudyPlan)
+        study_plan.output_dir = self.temp_dir
+        study_plan.study_data = {
+            "plans": [{"analysis": "ie_summary", "population": "enrolled", "group": "trt01a"}]
+        }
+
+        # Mock Expander
+        mock_expander = MagicMock()
+        mock_expander.expand_plan.return_value = study_plan.study_data["plans"]
+        mock_expander.create_analysis_spec.side_effect = lambda x: x
+        study_plan.expander = mock_expander
+
+        # Mock Parser
+        mock_parser = mock_parser_cls.return_value
+        # Mock get_population_data to succeed
+        mock_parser.get_population_data.return_value = (self.adsl, "TRT01A")
+
+        # Mock get_datasets to fail
+        mock_parser.get_datasets.side_effect = ValueError("Dataset not found")
+
+        # Run
+        # Should catch error and return empty list (since only one plan and it fails)
+        generated = study_plan_to_ie_summary(study_plan)
+
+        self.assertEqual(len(generated), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
