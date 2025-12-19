@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1]
+
+### Added
+- **Inclusion/Exclusion**: Added `src/csrlite/ie/ie.py` for Inclusion/Exclusion criteria analysis, including `study_plan_to_ie_summary` and `study_plan_to_ie_listing`.
+
+### Changed
+- **Disposition**: Updated disposition analysis to use `DCSREAS` variable instead of `DCREASCD` to align with dataset updates.
+- **Code Quality**:
+    - Addressed linting and formatting issues (`ruff`).
+    - Improved test coverage for `ie` module.
+    - Resolved `mypy` and `pyre` type checking errors.
+
 ## [0.2.0]
 
 ### Added
