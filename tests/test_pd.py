@@ -141,6 +141,7 @@ class TestPdListing(unittest.TestCase):
 
         res = study_plan_to_pd_listing(mock_plan)
 
+        self.assertEqual(res, ["path.rtf"])
         mock_pd_listing.assert_called_once()
 
     @patch("csrlite.pd.pd_listing.pd_listing")
