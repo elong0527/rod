@@ -55,6 +55,16 @@ plans:
   - analysis: "ie_listing"
     population: "discon"
 
+  # PD Listings
+  - analysis: "pd_listing"
+    population: "itt"
+    observation: "pd_major"
+    group: "trt01a"
+
+  - analysis: "pd_listing"
+    population: "apat"
+    group: "trt01a"
+
 population:
   - name: all
     filter: ""
@@ -81,6 +91,14 @@ observation:
     label: "Week 0 to 24"
     description: "24-week post-baseline assessment"
     filter: "adae:aendy <= 24*7"
+
+  - name: "pd_major"
+    label: "Major Protocol Deviations"
+    filter: "adpd:DVCAT == 'MAJOR'"
+
+  - name: "pd_minor"
+    label: "Minor Protocol Deviations"
+    filter: "adpd:DVCAT == 'MINOR'"
 
 group:
   - name: trt01a
@@ -123,3 +141,5 @@ data:
     path: ../../../data/adae.parquet
   - name: adie
     path: ../../../data/adie.parquet
+  - name: adpd
+    path: ../../../data/adpd.parquet

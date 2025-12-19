@@ -1,0 +1,72 @@
+---
+title: "Protocol Deviation Listing"
+---
+
+::: {.callout-note}
+## Objectives
+
+This guide demonstrates Protocol Deviation (PD) listing showing detailed individual deviation records.
+:::
+
+## Setup
+
+```{python}
+#| message: false
+import os
+import sys
+import polars as pl
+from pathlib import Path
+
+print(f"Python Executable: {sys.executable}")
+sys.path.insert(0, os.path.abspath('src'))
+print(f"CWD: {os.getcwd()}")
+print(f"Path: {sys.path}")
+src_path = os.path.abspath('src')
+if os.path.exists(src_path):
+    print(f"Contents of {src_path}: {os.listdir(src_path)}")
+else:
+    print(f"{src_path} does not exist!")
+
+from rtflite import LibreOfficeConverter
+try:
+    converter = LibreOfficeConverter()
+except Exception:
+    converter = None
+    print("WARNING: LibreOffice not found. PDF conversion will be skipped.")
+
+from csrlite import load_plan, study_plan_to_pd_listing
+from csrlite.pd.pd_listing import pd_listing_ard, pd_listing_rtf, pd_listing
+```
+
+## Protocol Deviation Listing
+
+Shows detailed individual protocol deviations with categories and terms.
+
+## StudyPlan-Driven Workflow
+
+```{python}
+try:
+    study_plan = load_plan("plan_pd_xyz123.yaml")
+    output_files = study_plan_to_pd_listing(study_plan)
+except Exception as e:
+    print(f"Skipping StudyPlan workflow due to: {e}")
+    output_files = []
+```
+
+```{python}
+#| echo: false
+for file in output_files:
+    if converter:
+        converter.convert(file, output_dir="docs/pdf/", format="pdf", overwrite=True)
+```
+
+## Complete Pipeline
+
+```{python}
+
+## Output
+
+The following listings were generated from the Study Plan:
+
+
+
