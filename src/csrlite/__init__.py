@@ -13,6 +13,14 @@ from .ae.ae_summary import (  # AE summary functions
     ae_summary,
     study_plan_to_ae_summary,
 )
+from .cm.cm_listing import (  # CM listing functions
+    cm_listing,
+    study_plan_to_cm_listing,
+)
+from .cm.cm_summary import (
+    cm_summary,
+    study_plan_to_cm_summary,
+)
 from .common.config import config
 from .common.count import (
     count_subject,
@@ -58,6 +66,11 @@ __all__ = [
     "study_plan_to_ae_summary",
     "study_plan_to_ae_specific",
     "study_plan_to_ae_listing",
+    # CM analysis
+    "cm_listing",
+    "study_plan_to_cm_listing",
+    "cm_summary",
+    "study_plan_to_cm_summary",
     # Disposition analysis
     "study_plan_to_disposition_summary",
     # Count functions

@@ -1,0 +1,148 @@
+---
+title: "Concomitant Medications Listing"
+---
+
+::: {.callout-note}
+## Objectives
+
+This guide demonstrates Concomitant Medications (CM) listing showing detailed individual medication records.
+:::
+
+## Setup
+
+```{python}
+#| message: false
+import os
+import sys
+import polars as pl
+from pathlib import Path
+
+# Add src to sys.path if not present
+sys.path.insert(0, os.path.abspath('src'))
+if not os.path.exists('src') and os.path.exists('../src'):
+    sys.path.insert(0, os.path.abspath('../src'))
+
+# Import LibreOfficeConverter for PDF generation (optional)
+from rtflite import LibreOfficeConverter
+try:
+    converter = LibreOfficeConverter()
+except Exception:
+    converter = None
+    print("WARNING: LibreOffice not found. PDF conversion will be skipped.")
+
+# Import csrlite functions
+from csrlite import load_plan, study_plan_to_cm_listing
+from csrlite.cm.cm_listing import cm_listing_ard, cm_listing_rtf, cm_listing
+from csrlite.cm.cm_summary import cm_summary
+```
+
+## Concomitant Medications Listing
+
+Shows detailed individual concomitant medications with categories, terms, and dosing information.
+
+## StudyPlan-Driven Workflow
+
+```{python}
+try:
+    # Load study plan (adjust path if running from docs dir or root)
+    plan_path = "studies/xyz123/yaml/plan_xyz123.yaml"
+    if not os.path.exists(plan_path) and os.path.exists(f"../{plan_path}"):
+        plan_path = f"../{plan_path}"
+    
+    study_plan = load_plan(plan_path)
+    
+    # Filter for cm_listing analyses
+    # Note: Ensure 'cm_listing' analysis is added to plan_xyz123.yaml if not present
+    # For demonstration, we might need to manually ensure it exists or mock it
+    
+    # As the user environment might not have the plan updated yet, we will manually run listing below
+    # But here is the code if plan was updated:
+    # output_files = study_plan_to_cm_listing(study_plan)
+    pass
+except Exception as e:
+    print(f"Error loading plan or generating listing: {e}")
+    output_files = []
+```
+
+## Complete Pipeline
+
+```{python}
+# Load data
+data_path = Path("data") if Path("data").exists() else Path("../data")
+adsl = pl.read_parquet(data_path / "adsl.parquet")
+adcm = pl.read_parquet(data_path / "adcm.parquet")
+
+# Define output path
+# Using absolute path or relative to project root to ensure consistency
+output_rtf = "../studies/xyz123/rtf/cm_listing_manual.rtf"
+# Ensure directory exists
+Path(output_rtf).parent.mkdir(parents=True, exist_ok=True)
+
+pd_listing_path = cm_listing(
+    population=adsl,
+    observation=adcm,
+    population_filter="SAFFL = 'Y'",
+    observation_filter="CONFL = 'Y'", # On-treatment/Concomitant
+    parameter_filter=None,
+    id=("USUBJID", "Subject ID"),
+    title=[
+        "Listing of Concomitant Medications",
+        "(Safety Population)"
+    ],
+    footnote=["Medications are sorted by treatment and subject ID."],
+    source=["Source: ADSL and ADCM datasets"],
+    output_file=output_rtf,
+    population_columns=[
+        ("TRT01A", "Treatment"),
+        ("AGE", "Age"),
+        ("SEX", "Sex")
+    ],
+    observation_columns=[
+        ("CMSEQ", "Sequence"),
+        ("CMTRT", "Medication"),
+        ("CMDECOD", "Standardized Name"),
+        ("ASTDT", "Start Date"),
+        ("AENDT", "End Date"),
+        ("CMDOSE", "Dose"),
+        ("CMDOSU", "Unit"),
+        ("CMROUTE", "Route"),
+        ("CMFREQ", "Frequency"),
+        ("CMINDC", "Indication")
+    ],
+    sort_columns=["TRT01A", "USUBJID", "ASTDT", "CMSEQ"],
+    group_by=["USUBJID"],
+    page_by=["TRT01A"],
+)
+print(f"Generated: {pd_listing_path}")
+```
+
+## Concomitant Medications Summary
+
+Summarizes the number and percentage of participants with concomitant medications.
+
+```{python}
+# Define output path for summary
+output_summary_rtf = "../studies/xyz123/rtf/cm_summary_saffl_cm_ontrt.rtf"
+# Ensure directory exists
+Path(output_summary_rtf).parent.mkdir(parents=True, exist_ok=True)
+
+summary_path = cm_summary(
+    population=adsl,
+    observation=adcm,
+    population_filter="SAFFL = 'Y'",
+    observation_filter="CONFL = 'Y'", # On-treatment
+    id=("USUBJID", "Subject ID"),
+    group=("TRT01A", "Treatment"),
+    variables=[
+        ("1=1", "Participants with one or more medications")
+    ],
+    title=[
+        "Summary of Concomitant Medications",
+        "(Safety Population)"
+    ],
+    footnote=["Every participant is counted a single time for each applicable row and column."],
+    source=["Source: ADSL and ADCM datasets"],
+    output_file=output_summary_rtf,
+)
+print(f"Generated: {summary_path}")
+```
