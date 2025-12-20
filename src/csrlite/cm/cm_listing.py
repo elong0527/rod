@@ -447,19 +447,17 @@ def study_plan_to_cm_listing(
         parameter_filter = None
         if parameter:
             # Assuming similar parameter structure, though CM might just use subsets
-            param_names, param_filters, param_labels, _ = parser.get_parameter_info(
-                parameter
-            )
+            param_names, param_filters, param_labels, _ = parser.get_parameter_info(parameter)
             # For cm_listing, use the first filter
             parameter_filter = param_filters[0] if param_filters else None
 
         # Build title
         title_parts = ["Listing of Concomitant Medications"]
-        
+
         if observation:
-             obs_kw = study_plan.keywords.observations.get(observation)
-             if obs_kw and obs_kw.label:
-                 title_parts.append(obs_kw.label)
+            obs_kw = study_plan.keywords.observations.get(observation)
+            if obs_kw and obs_kw.label:
+                title_parts.append(obs_kw.label)
 
         pop_kw = study_plan.keywords.populations.get(population)
         if pop_kw and pop_kw.label:

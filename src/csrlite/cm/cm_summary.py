@@ -87,12 +87,10 @@ def study_plan_to_cm_summary(
 
         # Get filters and configuration using parser
         population_filter = parser.get_population_filter(population)
-        
+
         # Handle parameters (variables to summarize)
         if parameter:
-            param_names, param_filters, param_labels, _ = parser.get_parameter_info(
-                parameter
-            )
+            param_names, param_filters, param_labels, _ = parser.get_parameter_info(parameter)
         else:
             # Default to summarizing "Any Medication" if no parameter specified
             # But usually cm_summary needs parameters defining what to count
@@ -167,9 +165,9 @@ def cm_summary_ard(
     Generate Analysis Results Data (ARD) for CM summary analysis.
     """
     # Reuse the same logic logic as ae_summary_ard since it's generic counting
-    # But checking if we should duplicate code or import? 
+    # But checking if we should duplicate code or import?
     # For now, duplication allows independence (e.g. if CM specific logic is needed later)
-    
+
     pop_var_name = "Participants in population"
     id_var_name, id_var_label = id
     group_var_name, group_var_label = group
@@ -198,7 +196,9 @@ def cm_summary_ard(
         observation_filtered = pl.concat(observation_filtered_list)
     else:
         # Handle case with no variables (empty df with correct schema)
-        observation_filtered = observation_to_filter.clear().with_columns(pl.lit("").alias("__index__"))
+        observation_filtered = observation_to_filter.clear().with_columns(
+            pl.lit("").alias("__index__")
+        )
 
     # Population counts
     n_pop = count_subject(
