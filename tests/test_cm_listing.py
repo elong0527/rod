@@ -213,3 +213,125 @@ class TestCmListing(unittest.TestCase):
 
         # page_by columns should be removed from main cols (except ID)
         self.assertNotIn("TRT01P", ard.columns)
+
+    @patch("csrlite.cm.cm_listing.RTFDocument")
+    def test_cm_listing_rtf_custom_width(self, mock_rtf_doc_cls: MagicMock) -> None:
+        mock_doc = MagicMock()
+        mock_rtf_doc_cls.return_value = mock_doc
+
+        df = pl.DataFrame({"A": [1], "B": [2]})
+        cm_listing_rtf(
+            df=df,
+            column_labels={"A": "Label A"},
+            title=["Title"],
+            footnote=None,
+            source=None,
+            col_rel_width=[2.0, 1.0],
+        )
+
+        # Verify call args
+        args, kwargs = mock_rtf_doc_cls.call_args
+        rtf_body = kwargs["rtf_body"]
+        self.assertEqual(rtf_body.col_rel_width, [2.0, 1.0])
+
+    @patch("csrlite.cm.cm_listing.cm_listing")
+    def test_study_plan_to_cm_listing_parameter(self, mock_cm_listing: MagicMock) -> None:
+        mock_cm_listing.return_value = "path.rtf"
+
+        mock_plan = MagicMock()
+        mock_plan.output_dir = "out"
+
+        # Plan with parameter
+        plan_df = pl.DataFrame(
+            {
+                "analysis": ["cm_listing"],
+                "population": ["pop1"],
+                "observation": ["obs1"],
+                "parameter": ["param1"],
+                "group": ["group1"],
+            }
+        )
+        mock_plan.get_plan_df.return_value = plan_df
+        mock_plan.datasets = {"adsl": self.adsl, "adcm": self.adcm}
+
+        mock_kw_pop = MagicMock()
+        mock_kw_pop.filter = "1=1"
+
+        mock_kw_obs = MagicMock()
+        mock_kw_obs.filter = "1=1"
+
+        mock_kw_param = MagicMock()
+        mock_kw_param.filter = "PARAM='X'"  # Should be used
+        mock_kw_param.label = "Param Label"
+
+        mock_kw_group = MagicMock()
+        mock_kw_group.variable = "adsl:TRT01P"
+        mock_kw_group.group_label = ["A"]
+
+        mock_plan.keywords.get_population.return_value = mock_kw_pop
+        mock_plan.keywords.get_observation.return_value = mock_kw_obs
+        mock_plan.keywords.get_parameter.return_value = mock_kw_param
+        mock_plan.keywords.get_group.return_value = mock_kw_group
+
+        mock_plan.keywords.populations.get.return_value = mock_kw_pop
+        mock_plan.keywords.observations.get.return_value = mock_kw_obs
+
+        study_plan_to_cm_listing(mock_plan)
+
+        mock_cm_listing.assert_called_once()
+        args, kwargs = mock_cm_listing.call_args
+        self.assertEqual(kwargs["parameter_filter"], "PARAM='X'")
+
+    @patch("csrlite.cm.cm_listing.cm_listing")
+    def test_cm_listing_title_missing_labels(self, mock_cm_listing: MagicMock) -> None:
+        mock_cm_listing.return_value = "path.rtf"
+
+        mock_plan = MagicMock()
+        mock_plan.output_dir = "out"
+
+        # Plan with parameter
+        plan_df = pl.DataFrame(
+            {
+                "analysis": ["cm_listing"],
+                "population": ["pop1"],
+                "observation": ["obs1"],
+                "parameter": ["param1"],
+                "group": ["group1"],
+            }
+        )
+        mock_plan.get_plan_df.return_value = plan_df
+        mock_plan.datasets = {"adsl": self.adsl, "adcm": self.adcm}
+
+        mock_kw_pop = MagicMock()
+        mock_kw_pop.filter = "1=1"
+        mock_kw_pop.label = None  # Missing label
+
+        mock_kw_obs = MagicMock()
+        mock_kw_obs.filter = "1=1"
+        mock_kw_obs.label = None  # Missing label
+
+        mock_kw_param = MagicMock()
+        mock_kw_param.filter = "PARAM='X'"
+        mock_kw_param.label = "Param Label"
+
+        mock_kw_group = MagicMock()
+        mock_kw_group.variable = "adsl:TRT01P"
+        mock_kw_group.group_label = ["A"]
+
+        # Setup getting keywords
+        mock_plan.keywords.get_population.return_value = mock_kw_pop
+        mock_plan.keywords.get_observation.return_value = mock_kw_obs
+        mock_plan.keywords.get_parameter.return_value = mock_kw_param
+        mock_plan.keywords.get_group.return_value = mock_kw_group
+
+        mock_plan.keywords.populations.get.return_value = mock_kw_pop
+        mock_plan.keywords.observations.get.return_value = mock_kw_obs
+
+        study_plan_to_cm_listing(mock_plan)
+
+        # Check title
+        args, kwargs = mock_cm_listing.call_args
+        title = kwargs["title"]
+        # Base title is "Listing of Concomitant Medications"
+        self.assertEqual(len(title), 1)
+        self.assertEqual(title[0], "Listing of Concomitant Medications")

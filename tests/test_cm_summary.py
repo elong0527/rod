@@ -335,3 +335,117 @@ class TestCmSummary(unittest.TestCase):
         title = kwargs["title"]
         self.assertIn("Pop Label", title)
         self.assertIn("Obs Label", title)
+
+    @patch("csrlite.cm.cm_summary.create_rtf_table_n_pct")
+    def test_cm_summary_rtf_custom_width(self, mock_create_table: MagicMock) -> None:
+        df = pl.DataFrame(
+            {
+                "__index__": ["Row1"],
+                "A": ["1 (50%)"],
+                "B": ["0 (0%)"],
+            }
+        )
+        mock_doc = MagicMock()
+        mock_create_table.return_value = mock_doc
+
+        # Test with custom widths
+        cm_summary_rtf(
+            df=df, title=["Title"], footnote=None, source=None, col_rel_width=[2.0, 1.0, 1.0]
+        )
+
+        # Verify passed to create_table
+        args, kwargs = mock_create_table.call_args
+        self.assertEqual(kwargs["col_widths"], [2.0, 1.0, 1.0])
+
+    @patch("csrlite.cm.cm_summary.cm_summary")
+    def test_study_plan_to_cm_summary_no_observation(self, mock_cm_summary: MagicMock) -> None:
+        mock_cm_summary.return_value = "path.rtf"
+
+        mock_plan = MagicMock()
+        mock_plan.output_dir = "out"
+
+        # Plan without observation
+        plan_df = pl.DataFrame(
+            {
+                "analysis": ["cm_summary"],
+                "population": ["pop1"],
+                "observation": [None],  # No observation
+                "parameter": [None],
+                "group": ["group1"],
+            }
+        )
+        mock_plan.get_plan_df.return_value = plan_df
+        mock_plan.datasets = {"adsl": self.adsl, "adcm": self.adcm}
+
+        mock_kw_pop = MagicMock()
+        mock_kw_pop.filter = "1=1"
+        mock_kw_pop.label = "Pop Label"
+
+        mock_kw_group = MagicMock()
+        mock_kw_group.variable = "adsl:TRT01P"
+        mock_kw_group.group_label = ["A"]
+
+        mock_plan.keywords.get_population.return_value = mock_kw_pop
+        # get_observation might be called with None?
+        # Parser.get_observation_filter(None) returns None.
+
+        mock_plan.keywords.get_group.return_value = mock_kw_group
+        mock_plan.keywords.populations.get.return_value = mock_kw_pop
+
+        study_plan_to_cm_summary(mock_plan)
+
+        mock_cm_summary.assert_called_once()
+
+    @patch("csrlite.cm.cm_summary.cm_summary")
+    def test_cm_summary_title_missing_pop_label(self, mock_cm_summary: MagicMock) -> None:
+        mock_cm_summary.return_value = "path.rtf"
+
+        mock_plan = MagicMock()
+        mock_plan.output_dir = "out"
+
+        plan_df = pl.DataFrame(
+            {
+                "analysis": ["cm_summary"],
+                "population": ["pop1"],
+                "observation": ["obs1"],
+                "parameter": ["param1"],
+                "group": ["group1"],
+            }
+        )
+        mock_plan.get_plan_df.return_value = plan_df
+        mock_plan.datasets = {"adsl": self.adsl, "adcm": self.adcm}
+
+        # Mock keywords with NO labels
+        mock_kw_pop = MagicMock()
+        mock_kw_pop.filter = "1=1"
+        mock_kw_pop.label = None  # Missing label
+
+        mock_kw_obs = MagicMock()
+        mock_kw_obs.filter = "1=1"
+        mock_kw_obs.label = None  # Missing label
+
+        mock_kw_param = MagicMock()
+        mock_kw_param.filter = "1=1"
+        mock_kw_param.label = "Param"
+        mock_kw_param.indent = 0
+
+        mock_kw_group = MagicMock()
+        mock_kw_group.variable = "adsl:TRT01P"
+        mock_kw_group.group_label = ["A"]
+
+        # Setup getting keywords
+        mock_plan.keywords.get_population.return_value = mock_kw_pop
+        mock_plan.keywords.get_observation.return_value = mock_kw_obs
+        mock_plan.keywords.get_parameter.return_value = mock_kw_param
+        mock_plan.keywords.get_group.return_value = mock_kw_group
+        mock_plan.keywords.populations.get.return_value = mock_kw_pop
+        mock_plan.keywords.observations.get.return_value = mock_kw_obs
+
+        study_plan_to_cm_summary(mock_plan)
+
+        # Check title in call args - should NOT contain labels
+        args, kwargs = mock_cm_summary.call_args
+        title = kwargs["title"]
+        # Base title is "Summary of Concomitant Medications"
+        self.assertEqual(len(title), 1)
+        self.assertEqual(title[0], "Summary of Concomitant Medications")
