@@ -207,7 +207,7 @@ class TestCmSummary(unittest.TestCase):
 
         with self.assertRaises(ValueError) as cm:
             study_plan_to_cm_summary(mock_plan)
-        
+
         self.assertIn("Group not specified", str(cm.exception))
 
     @patch("csrlite.cm.cm_summary.cm_summary")
@@ -217,48 +217,48 @@ class TestCmSummary(unittest.TestCase):
         # Mock StudyPlan
         mock_plan = MagicMock()
         mock_plan.output_dir = "outputs"
-        
+
         # Mock Plan DF without parameter
         plan_df = pl.DataFrame(
             {
                 "analysis": ["cm_summary"],
                 "population": ["pop1"],
                 "observation": ["obs1"],
-                "parameter": [None], # Missing parameter
+                "parameter": [None],  # Missing parameter
                 "group": ["group1"],
             }
         )
         mock_plan.get_plan_df.return_value = plan_df
-        
+
         # Mock datasets
         mock_plan.datasets = {"adsl": self.adsl, "adcm": self.adcm}
-        
+
         # Mock keywords
         mock_kw_pop = MagicMock()
         mock_kw_pop.filter = "filter1"
         mock_kw_pop.label = "Pop Label"
-        
+
         mock_kw_obs = MagicMock()
         mock_kw_obs.filter = "filter2"
         mock_kw_obs.label = "Obs Label"
-        
+
         mock_kw_group = MagicMock()
         mock_kw_group.variable = "adsl:TRT01P"
         mock_kw_group.group_label = ["A", "B"]
-        
+
         # Configure lookups
         mock_plan.keywords.get_population.return_value = mock_kw_pop
         mock_plan.keywords.get_observation.return_value = mock_kw_obs
         # get_parameter won't be called if parameter is None
         mock_plan.keywords.get_group.return_value = mock_kw_group
-        
+
         # Dictionary access for titles
         mock_plan.keywords.populations.get.return_value = mock_kw_pop
         mock_plan.keywords.observations.get.return_value = mock_kw_obs
-        
+
         # Run
         study_plan_to_cm_summary(mock_plan)
-        
+
         # Verify called with default variable
         mock_cm_summary.assert_called_once()
         args, kwargs = mock_cm_summary.call_args
