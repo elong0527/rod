@@ -260,6 +260,78 @@ class TestCmSummary(unittest.TestCase):
         study_plan_to_cm_summary(mock_plan)
 
         # Verify called with default variable
-        mock_cm_summary.assert_called_once()
+
+    def test_cm_summary_ard_no_variables(self) -> None:
+        # Test case where no variables are provided (should return population counts only)
+        ard = cm_summary_ard(
+            population=self.adsl,
+            observation=self.adcm,
+            population_filter=None,
+            observation_filter=None,
+            id=self.id,
+            group=self.group,
+            variables=[],  # Empty list
+            total=True,
+            missing_group="error",
+        )
+
+        # Should still have population count
+        pop_rows = ard.filter(pl.col("__index__") == "Participants in population")
+        self.assertGreater(pop_rows.height, 0)
+
+        # Should contain empty string index for formatting
+        self.assertFalse(ard.filter(pl.col("__index__") == "").is_empty())
+
+    @patch("csrlite.cm.cm_summary.cm_summary")
+    def test_study_plan_to_cm_summary_titles(self, mock_cm_summary: MagicMock) -> None:
+        mock_cm_summary.return_value = "path.rtf"
+
+        mock_plan = MagicMock()
+        mock_plan.output_dir = "out"
+
+        # Plan with observation and population
+        plan_df = pl.DataFrame(
+            {
+                "analysis": ["cm_summary"],
+                "population": ["pop1"],
+                "observation": ["obs1"],
+                "parameter": ["param1"],
+                "group": ["group1"],
+            }
+        )
+        mock_plan.get_plan_df.return_value = plan_df
+        mock_plan.datasets = {"adsl": self.adsl, "adcm": self.adcm}
+
+        # Mock keywords with labels
+        mock_kw_pop = MagicMock()
+        mock_kw_pop.filter = "1=1"
+        mock_kw_pop.label = "Pop Label"  # Should be added to title
+
+        mock_kw_obs = MagicMock()
+        mock_kw_obs.filter = "1=1"
+        mock_kw_obs.label = "Obs Label"  # Should be added to title
+
+        mock_kw_param = MagicMock()
+        mock_kw_param.filter = "1=1"
+        mock_kw_param.label = "Param Label"
+        mock_kw_param.indent = 0
+
+        mock_kw_group = MagicMock()
+        mock_kw_group.variable = "adsl:TRT01P"
+        mock_kw_group.group_label = ["A"]
+
+        # Setup getting keywords
+        mock_plan.keywords.get_population.return_value = mock_kw_pop
+        mock_plan.keywords.get_observation.return_value = mock_kw_obs
+        mock_plan.keywords.get_parameter.return_value = mock_kw_param
+        mock_plan.keywords.get_group.return_value = mock_kw_group
+        mock_plan.keywords.populations.get.return_value = mock_kw_pop
+        mock_plan.keywords.observations.get.return_value = mock_kw_obs
+
+        study_plan_to_cm_summary(mock_plan)
+
+        # Check title in call args
         args, kwargs = mock_cm_summary.call_args
-        self.assertEqual(kwargs["variables"], [("1=1", "Any Medication")])
+        title = kwargs["title"]
+        self.assertIn("Pop Label", title)
+        self.assertIn("Obs Label", title)

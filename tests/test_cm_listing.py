@@ -162,6 +162,54 @@ class TestCmListing(unittest.TestCase):
 
         # The index row for population should use "Test Sex" label
         # (Though ARD generation puts labels in __index__ but for listing it's column based?
-        # Check cm_listing logic: ARD uses join. Listing uses column renaming.)
         # Actually cm_listing_ard returns joined DF.
         pass
+
+    def test_cm_listing_ard_defaults(self) -> None:
+        # Test usage of defaults (None for columns)
+        ard = cm_listing_ard(
+            population=self.adsl,
+            observation=self.adcm,
+            population_filter=None,
+            observation_filter=None,
+            parameter_filter=None,
+            id=self.id,
+            population_columns=None,  # Should just select ID
+            observation_columns=None,  # Should just select ID
+            sort_columns=None,
+        )
+
+        # Check columns
+        self.assertIn("USUBJID", ard.columns)
+        # Should contain __index__
+        self.assertIn("__index__", ard.columns)
+
+        # Should not contain other cols unless joined (but pop cols is None)
+        # However cm_listing_ard logic for None obs cols is just ID.
+        self.assertNotIn("CMTRT", ard.columns)
+        self.assertNotIn("TRT01P", ard.columns)  # No join happened
+
+    def test_cm_listing_ard_page_by(self) -> None:
+        # Test page_by logic
+        ard = cm_listing_ard(
+            population=self.adsl,
+            observation=self.adcm,
+            population_filter=None,
+            observation_filter=None,
+            parameter_filter=None,
+            id=self.id,
+            population_columns=[("TRT01P", "Treatment")],
+            observation_columns=[("CMTRT", "Medication")],
+            sort_columns=None,
+            page_by=["TRT01P"],  # Valid page_by col
+        )
+
+        # __index__ should contain page info
+        # User 1 is in Group A.
+        # index should contain 'Treatment = A'
+        user1_rows = ard.filter(pl.col("USUBJID") == "1")
+        index_val = user1_rows["__index__"][0]
+        self.assertIn("Treatment = A", index_val)
+
+        # page_by columns should be removed from main cols (except ID)
+        self.assertNotIn("TRT01P", ard.columns)
