@@ -290,6 +290,3 @@ def ie_rtf(df: pl.DataFrame, output_path: str, title: str = "") -> None:
     )
 
     rtf_doc.write_rtf(output_path)
-
-
-
