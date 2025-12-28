@@ -126,7 +126,7 @@ class TestIeRtf(unittest.TestCase):
 
         mock_create.assert_called_once()
         args, kwargs = mock_create.call_args
-        self.assertEqual(kwargs["title"], ["Test Title"])
+        self.assertEqual(kwargs["title"], "Test Title")
         self.assertEqual(kwargs["col_header_1"], ["Criteria", "Total"])
         self.assertEqual(kwargs["col_header_2"], ["", "n (%)"])
 
