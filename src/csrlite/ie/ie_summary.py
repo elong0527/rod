@@ -16,7 +16,7 @@ import polars as pl
 
 from ..common.parse import StudyPlanParser
 from ..common.plan import StudyPlan
-from ..common.rtf import create_rtf_listing, create_rtf_table_n_pct
+from ..common.rtf import create_rtf_table_n_pct
 from ..common.utils import apply_common_filters
 
 

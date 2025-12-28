@@ -4,7 +4,7 @@ Inclusion/Exclusion (IE) Listing Analysis Functions
 """
 
 from pathlib import Path
-from typing import Any
+
 
 import polars as pl
 
