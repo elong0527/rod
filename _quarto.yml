@@ -40,6 +40,10 @@ book:
       chapters:
         - docs/cm_summary.qmd
         - docs/cm_listing.qmd
+    - part: "Medical History"
+      chapters:
+        - docs/mh_summary.qmd
+        - docs/mh_listing.qmd
     - part: "Disposition"
       chapters:
         - docs/disposition.qmd
