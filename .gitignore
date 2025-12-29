@@ -153,3 +153,4 @@ examples/output/
 /.quarto/
 
 **/*.quarto_ipynb
+quarto_bin/
