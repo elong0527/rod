@@ -161,7 +161,9 @@ def mh_summary_ard(
     }
 
     # Helper to calculate row
-    def calc_row(spec: dict[str, Any]) -> dict[str, Any]:
+    def calc_row(
+        spec: dict[str, Any], obs_data: pl.DataFrame, pop_data: pl.DataFrame
+    ) -> dict[str, Any]:
         row_res = {"label": spec["label"], "indent": spec["indent"], "is_header": spec["is_header"]}
 
         # Filter observation data based on spec string/expr
@@ -169,12 +171,12 @@ def mh_summary_ard(
         # We can simulate logic here.
 
         # 1. Filter ADQ based on criteria
-        filtered_obs = adq.filter(spec["filter"])
+        filtered_obs = obs_data.filter(spec["filter"])
 
         # 2. Join with ADSL to get groups (inner join to count only subjects in population)
         # But we already filtered ADSL (population).
 
-        subset = filtered_obs.join(adsl.select([id_col, group_col]), on=id_col, how="inner")
+        subset = filtered_obs.join(pop_data.select([id_col, group_col]), on=id_col, how="inner")
 
         # 3. Group by Group Col
         counts = subset.select(id_col, group_col).unique().group_by(group_col).count()
@@ -190,7 +192,7 @@ def mh_summary_ard(
         return row_res
 
     for spec in specs:
-        results.append(calc_row(spec))
+        results.append(calc_row(spec, adq, adsl))
 
     return pl.DataFrame(results)
 
